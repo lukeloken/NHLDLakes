@@ -62,7 +62,7 @@ polygonmatch<-c(rep(NA, length(filenames)))
 
 # Start loop for each filename
 lake_day=filenames[1]
-for (lake_day in filenames){
+for (lake_day in filenames[30:length(filenames)]){
   day_number<-which(filenames==lake_day )
   setwd(paste(getwd(),'/Data/', lake_day, sep=""))
   # get correct shapefile
@@ -104,10 +104,10 @@ for (lake_day in filenames){
     lake_polygon<-lakes_Base[lakes_Base$Lake_Name==polygonname,]
     # Display name of lake (regional lakes only!)
     print(as.character(lake_polygon$Lake_Name))
-
+    
     # Plot data and new 'lake polygon' object
     spplot(data[3], cuts=99, colorkey=TRUE, sp.layout = list(lake_polygon['Lake_Name']) )
-  
+    
     # Identify relative size of system
     # This will be used to build grid for predictions
     brdydim<-lake_polygon@bbox
@@ -140,7 +140,7 @@ for (lake_day in filenames){
     plot(bdry_poly_sp, add=TRUE)
     plot(buffered, add=TRUE, lwd=4)
     plot(lakes_Base, add=TRUE)
-  
+    
     # Make polygrid - This is each location to make predictions
     data1.grid<-polygrid(seq(brdydim[1,1], brdydim[1,2], pixelsize), seq(brdydim[2,1], brdydim[2,2], pixelsize), borders=Area@polygons[[1]]@Polygons[[1]]@coords)
     # Set names of coordinates and match projection
@@ -152,7 +152,7 @@ for (lake_day in filenames){
     # Remove pixels from islands and other polygon 'holes'
     pts_in=over(SpatialPoints(data1.grid), SpatialPolygons(lake_polygon@polygons), fn=NULL)
     data2.grid<-data1.grid[!is.na(pts_in)]
-
+    
     # plot data grid, boundary, and observations
     plot(data2.grid, col="grey")
     plot(lake_polygon, add=TRUE, col=NA, lwd=3)
@@ -162,7 +162,7 @@ for (lake_day in filenames){
     # Make spatial object to save surface predictions
     grid_withData<-SpatialPixelsDataFrame(data2.grid, data=data.frame(matrix(ncol=length(variables), nrow=length(data2.grid))))
     names(grid_withData@data)<-variables
-
+    
     # Make an empty summary table for each filename
     # This will be populated with summary stats for each variable
     summary_lake<-as.data.frame(matrix(nrow=length(variables), ncol=17))
@@ -174,13 +174,13 @@ for (lake_day in filenames){
     var=variables[1]
     for (var in variables){
       var_number<-which(variables==var)
-
+      
       #Identify column that contains variable
       column1<-which(names(data)==var) 
-    
+      
       # Remove Time Variable
       data2<-data[,-1]
-
+      
       #Identify column in data2 that contains variable
       column<-which(names(data2)==var) 
       
@@ -189,63 +189,73 @@ for (lake_day in filenames){
       
       # Skip variable if all NAs
       if (length(data2)>0){
-      
+        
         # Plot Timeseries of variable
-      # Make sure data seem reasonable
-      plot(data@data[,column1], type="p")
-      
-      #Transform data into UTM's. This way distance is in meters (m)
-      data2<-spTransform(data2, CRS(projection))
-      
-      #Plot heat map atop lake base polygon
-      spplot(data2[var], cuts=99, colorkey=TRUE, sp.layout = list(lakes_Base['Lake_Name']) )
-      
-      # subset (%) of the data. Take random percent of points
-      # Depending on the analysis and size of data, R cannot handle entire dataset
-      data3<-data2[sample(nrow(data2), nrow(data2)/subset), ]
-      colnames(data3@coords)<-c("x", "y")
-      
-      # =========================
-      # Using Inverse Distance Weighting predict values at each grid cell
-      # idp = denominator exponent. 
-      # idp = 1: 1/distance
-      # idp = 2: 1/(distance squared)
-      # =========================
-      
-      predict <- gstat::idw(data3@data[,column]~1, data3, data2.grid, idp=1)
-      names(predict)<-c(paste(var, sep=""), paste(var, "_v", sep=""))
-      par(mfrow=c(1,1))
-      par(mar=c(4,4,4,4), oma=c(1,1,1,1))
-      
-      spplot(predict, names(predict)[1], colorkey=TRUE, cuts=99, sp.layout=list(lake_polygon['Lake_Name'], col=1, fill=0, lwd=3, lty=1, first=F) , main=paste(var, "_prediction_inverse_distance_weight", sep=""), xlim=bbox(lake_polygon)[1,], ylim=bbox(lake_polygon)[2,])
-
-      # Create summary stats for variable
-      summary(predict)
-      values<-predict@data[,1]
-      evd<-fgev(values, std.err=F)
-      
-      summary_var<-c(summary(values), sd=sd(values), n=length(values), mad=mad(values), MADM=median(abs(values-median(values))), skewness=skewness(values, na.rm = T), evd$estimate)
-      hist(predict@data[,1],breaks=20, xlab=var, main="", col="grey")
-      
-      # Save summary info to summary table
-      summary_lake[var_number,1:14]<-summary_var
-      
-      # Save spatial data to spatial object
-      grid_withData@data[var_number]<-predict@data[1]
-    
-      # reate subfolder 'maps_idw' if it does not already exist
-      folders<-list.files(path = paste(getwd(), "", sep=""))
-      if(length(folders[folders=="maps_idw"])==0){
-        dir.create(paste(getwd(), "/maps_idw", sep=""))}
-      
-      # Plot Spatial data
-      png(paste(getwd(), "/maps_idw/", var,lake_day, ".png", sep=""), res=200, width=6,height=6, units="in")
-      par(mfrow=c(1,1))
-      par(mar=c(4,4,4,4), oma=c(1,1,1,1))
-      print(spplot(grid_withData, zcol=var, colorkey=TRUE, cuts=99, sp.layout=list(lake_polygon['Lake_Name'], col=1, fill=0, lwd=3, lty=1, first=F) , main=paste(var, "_prediction_inverse_distance_weight", sep=""), xlim=bbox(lake_polygon)[1,], ylim=bbox(lake_polygon)[2,]))
-      dev.off()
-      closeAllConnections()
-    
+        # Make sure data seem reasonable
+        plot(data@data[,column1], type="p")
+        
+        #Transform data into UTM's. This way distance is in meters (m)
+        data2<-spTransform(data2, CRS(projection))
+        
+        #Plot heat map atop lake base polygon
+        # spplot(data2[var], cuts=99, colorkey=TRUE, sp.layout = list(lakes_Base['Lake_Name']) )
+        
+        # subset (%) of the data. Take random percent of points
+        # Depending on the analysis and size of data, R cannot handle entire dataset
+        data3<-data2[sample(nrow(data2), nrow(data2)/subset), ]
+        colnames(data3@coords)<-c("x", "y")
+        
+        # =========================
+        # Using Inverse Distance Weighting predict values at each grid cell
+        # idp = denominator exponent. 
+        # idp = 1: 1/distance
+        # idp = 2: 1/(distance squared)
+        # =========================
+        
+        predict <- gstat::idw(data3@data[,column]~1, data3, data2.grid, idp=1)
+        names(predict)<-c(paste(var, sep=""), paste(var, "_v", sep=""))
+        
+        # par(mfrow=c(1,1))
+        # par(mar=c(4,4,4,4), oma=c(1,1,1,1))
+        # spplot(predict, names(predict)[1], colorkey=TRUE, cuts=99, sp.layout=list(lake_polygon['Lake_Name'], col=1, fill=0, lwd=3, lty=1, first=F) , main=paste(var, "_prediction_inverse_distance_weight", sep=""), xlim=bbox(lake_polygon)[1,], ylim=bbox(lake_polygon)[2,])
+        
+        # Create summary stats for variable
+        summary(predict)
+        values<-predict@data[,1]
+        
+        #if zero heterogeneity exists, skip evd and plotting
+        if (identical(round(min(values),3), round(max(values), 3))){
+          
+          summary_var<-c(summary(values), sd=sd(values), n=length(values), mad=mad(values), MADM=median(abs(values-median(values))), skewness=skewness(values, na.rm = T), rep(NA,3))
+          
+          # Save summary info to summary table
+          summary_lake[var_number,1:14]<-summary_var
+        } else {
+          
+          evd<-fgev(values, std.err=F)
+          
+          summary_var<-c(summary(values), sd=sd(values), n=length(values), mad=mad(values), MADM=median(abs(values-median(values))), skewness=skewness(values, na.rm = T), evd$estimate)
+          hist(predict@data[,1],breaks=20, xlab=var, main="", col="grey")
+          
+          # Save summary info to summary table
+          summary_lake[var_number,1:14]<-summary_var
+          
+          # Save spatial data to spatial object
+          grid_withData@data[var_number]<-predict@data[1]
+          
+          # reate subfolder 'maps_idw' if it does not already exist
+          folders<-list.files(path = paste(getwd(), "", sep=""))
+          if(length(folders[folders=="maps_idw"])==0){
+            dir.create(paste(getwd(), "/maps_idw", sep=""))}
+          
+          # Plot Spatial data
+          png(paste(getwd(), "/maps_idw/", var,lake_day, ".png", sep=""), res=200, width=6,height=6, units="in")
+          par(mfrow=c(1,1))
+          par(mar=c(4,4,4,4), oma=c(1,1,1,1))
+          print(spplot(grid_withData, zcol=var, colorkey=TRUE, cuts=99, sp.layout=list(lake_polygon['Lake_Name'], col=1, fill=0, lwd=3, lty=1, first=F) , main=paste(var, "_prediction_inverse_distance_weight", sep=""), xlim=bbox(lake_polygon)[1,], ylim=bbox(lake_polygon)[2,]))
+          dev.off()
+          closeAllConnections()
+        }
       }  
     }
     
@@ -255,7 +265,7 @@ for (lake_day in filenames){
     summary_lake$MADMOverMedian<-(summary_lake$MADM)/ (summary_lake$Median)
     
     summary_lake$Variable<-variables
-   
+    
     
     # Save shapefile of interpolated surface (spatial pixels data frame)
     writeOGR(grid_withData, dsn=paste(getwd(), "/shapefiles_idw", sep="") ,layer=short_name, driver="ESRI Shapefile",  verbose=F, overwrite=T)
@@ -270,7 +280,7 @@ for (lake_day in filenames){
     #Return to root directory
     setwd('..')
     setwd('..')
-
+    
     #Write summary to file
     write.table(summary_lake, file = as.character(paste('pixelsummaries/', short_name, ".csv", sep="")), col.names=TRUE,row.names=F, sep=",")
     rm(summary_lake)
