@@ -61,8 +61,8 @@ NHLD_Outline<-spTransform(NHLD_Outline, CRS(projection))
 polygonmatch<-c(rep(NA, length(filenames)))
 
 # Start loop for each filename
-lake_day=filenames[1]
-for (lake_day in filenames[30:length(filenames)]){
+lake_day=filenames[65]
+for (lake_day in filenames){
   day_number<-which(filenames==lake_day )
   setwd(paste(getwd(),'/Data/', lake_day, sep=""))
   # get correct shapefile
@@ -250,9 +250,36 @@ for (lake_day in filenames[30:length(filenames)]){
           
           # Plot Spatial data
           png(paste(getwd(), "/maps_idw/", var,lake_day, ".png", sep=""), res=200, width=6,height=6, units="in")
-          par(mfrow=c(1,1))
-          par(mar=c(4,4,4,4), oma=c(1,1,1,1))
-          print(spplot(grid_withData, zcol=var, colorkey=TRUE, cuts=99, sp.layout=list(lake_polygon['Lake_Name'], col=1, fill=0, lwd=3, lty=1, first=F) , main=paste(var, "_prediction_inverse_distance_weight", sep=""), xlim=bbox(lake_polygon)[1,], ylim=bbox(lake_polygon)[2,]))
+          xdist <- diff(bbox(lake_polygon)[1,1:2])
+          scale <- signif(xdist/10, digits=1)
+          # polyx<-c(bbox(lake_polygon)[1,1]+scale*(c(0.2,1.2)))
+          # polyy<-c(bbox(lake_polygon)[2,1]+scale*c(.2,.4))
+          # coords<-data.frame(x=c(polyx, rev(polyx)), y=c(rep(polyy[1], 2), rep(polyy[2], 2)))
+          # poly_box<-Polygon(coords)
+          # poly_box2<-Polygons(list(poly_box), "s1")
+          # poly_box_sp<-SpatialPolygons(list(poly_box2), proj4string=CRS(as.character(projection)))
+          # 
+          polyx<-c(bbox(lake_polygon)[1,1]+scale*(c(0.2,1.2)))
+          polyy<-c(bbox(lake_polygon)[2,1]+scale*c(.2,.4))
+          coords<-data.frame(x=c(rep(polyx[1], 2), rep(polyx[2], 2)), y=c(rev(polyy), polyy))
+          poly_line<-Line((coords))
+          S1 = Lines(list(poly_line), ID="a")
+          poly_line_sp<- SpatialLines(list(S1))
+          
+          l1 = list(lake_polygon['Lake_Name'], col=1, fill=0, lwd=3, lty=1, first=F)
+          l2 = list("SpatialPolygonsRescale", layout.north.arrow(type=1), offset = 
+                      c(bbox(lake_polygon)[1,1]+.25*scale, bbox(lake_polygon)[2,2]-1.1*scale),
+                      scale = scale*1, first=FALSE) 
+          l3<- list(poly_line_sp, fill=NA, lwd=2, lty=1, first=F)
+          # l3<- list(poly_box_sp, fill=NA, lwd=2, lty=1, first=F)
+# mean(polyx), mean(polyy)
+          # l3 = list("SpatialPolygonsRescale", layout.scale.bar(height=scale/1000), offset = 
+          #             c(bbox(lake_polygon)[1,1]+0.5*scale,bbox(lake_polygon)[2,1]+scale),
+          #             scale = scale, fill=c('black'), lwd=1, first=FALSE) 
+          l4 = list("sp.text", c(mean(polyx), polyy[1]),
+                    paste0(scale, "m"), cex=0.6, first=FALSE, pos=3) 
+          
+          print(spplot(grid_withData, zcol=var, colorkey=TRUE, cuts=99, sp.layout=list(l1, l2, l3, l4) , main=paste(var, "_prediction_inverse_distance_weight", sep=""), xlim=bbox(lake_polygon)[1,], ylim=bbox(lake_polygon)[2,]))
           dev.off()
           closeAllConnections()
         }
