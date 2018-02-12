@@ -71,7 +71,8 @@ for (lake_day in filenames){
   # Set list of variables to run through (omit time which is column 1)
   variables_all <- names(data)[2:length(names(data))]
   variables <- variables_all[grep('_h', variables_all)]
-  variables <- variables[-which(variables %in% c("XCO2Dppm_h", "XCH4Dppm_h", "CH4St_h", "CO2St_h"))]
+  badvars <- variables[which(variables %in% c("XCO2Dppm_h", "XCH4Dppm_h", "CH4St_h", "CO2St_h"))]
+  if (length(badvars)>0){variables <- variables[-which(variables %in% badvars)]}
   variable_names<-paste0(sub('\\_h.*', '', variables), '_h')
   
   #add SUNA vars if they exist
@@ -153,7 +154,7 @@ for (lake_day in filenames){
     est_nugget<-v$gamma[1]
     
     #fit model to variogram
-    v.fit <- fit.variogram(v, vgm(est_sill=est_sill, c("Exp", "Lin", "Sph"), est_range=est_range, nugget=est_nugget), fit.method = 2)
+    v.fit <- fit.variogram(v, vgm(est_sill=est_sill, c("Lin", "Sph"), est_range=est_range, nugget=est_nugget), fit.method = 2)
     
     #Ouput model information
     model_type    <- as.character(v.fit[2,1])
