@@ -226,8 +226,9 @@ for (lake_day in filenames){
   
 semivar_alllakes[,4:8] <- apply(semivar_alllakes[,4:8], 2, as.numeric)
 semivar_alllakes$Date <- ymd(semivar_alllakes$lake_day)
-semivar_alllakes$Lake <- gsub('[0-9]', '', semivar_alllakes$lake_day)
-semivar_alllakes$Lake <- gsub('--_', '', semivar_alllakes$Lake)
+semivar_alllakes$Lake <- gsub(".*_","",semivar_alllakes$lake_day)
+semivar_alllakes$Lake <- gsub("[0-9]","",semivar_alllakes$Lake )
+
 
 #Export Data
 saveRDS(moran_ncf_alllakes, file='SpatialOutputs/moran_ncf_alllakes.rds')
