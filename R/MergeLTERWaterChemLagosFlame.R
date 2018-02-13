@@ -33,12 +33,8 @@ directory<-'E:/Dropbox/FLAME_NHLDLakes'
 
 folders<-list.files(paste(directory, '/Data', sep=""))
 
-splitnames<-strsplit(folders, '_')
-str(splitnames)
-vector<-unlist(splitnames)
-lakes<-vector[grep('Lake', vector)]
-lakes<-sub('1', '', lakes)
-lakes<-sub('2', '', lakes)
+lakes <- gsub(".*_","",folders)
+lakes <- gsub("[0-9]","",lakes)
 
 # Make table of sample occurences
 table<-table(lakes)
@@ -64,7 +60,6 @@ directories_2015<-directories[grep('2015', directories)]
 
 Lake_data<-as.data.frame(matrix(nrow=0, ncol=0))
 
-
 dir<-directories_2015[17]
 for (dir in directories_2015){
   subdir<-paste0(directory, '/Data/',dir)
@@ -83,32 +78,12 @@ for (dir in directories_2015){
   }
 }
 
+str(Lake_data)
 
 
-
-folder<-folders[1]
-for (folder in folders){
-  subdir<-paste(directory, 'Data', folder, 'samples', sep="/")
-  subdir_files<-list.files(subdir)
-  
-  file<-subdir_files[grep('.csv', subdir_files)]
-  
-    if (length(file)==1){
-      data1<-read.csv(paste(subdir, file, sep="/"), header=T, stringsAsFactors = F)
-      
-      if (nrow(data1)>1){
-        data1$folder<-rep(folder, nrow(data1))
-      if (nrow(All_data)==0){
-        All_data<-data1[,1:6]}
-      else {
-        All_data<-smartbind(All_data, data1, fill=NA)}
-      }
-    }
-  }
-All_data<-All_data[,1:6]
-str(All_data)
-
-
+# ####################
+# old code below
+# #####################
 
 
 # Convert long LTER datatable into a wide table
