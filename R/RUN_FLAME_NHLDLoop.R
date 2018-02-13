@@ -102,8 +102,8 @@ setwd("E:/Dropbox/FLAME_NHLDLakes/Data")
 dirs<-list.files()
 # dirs<-dirs[-grep('2014',dirs)]
 
-days<-dirs[1]
-for (days in dirs[6:69]){
+days<-dirs[18]
+for (days in dirs){
   FLAMEsubdirectory<-(days)
   setwd(paste(getwd(), FLAMEsubdirectory, sep="/"))
 
@@ -121,7 +121,8 @@ Site<-as.character(meta$Site[1])
 # grab samples and atm data if present
 if (meta$number_of_samples[1]!=0){
 SamplesPath <- list.files(path = paste(getwd(), "/samples", sep=""))
-Samples<-do.call("rbind", lapply(paste("samples/", SamplesPath, sep=""), read.table, sep="," ,skip=0,  header = TRUE, fill=TRUE))}
+Samples<-do.call("rbind", lapply(paste("samples/", SamplesPath, sep=""), read.table, sep="," ,skip=0,  header = TRUE, fill=TRUE))
+Samples<-Samples[,1:5]}
 
 if (!is.null(meta$number_of_atm_samples[1])){
   if (meta$number_of_atm_samples[1]!=0){
