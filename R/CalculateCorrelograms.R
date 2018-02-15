@@ -217,7 +217,7 @@ for (lake_day in filenames){
   moran_ncf_alllakes[[day_number]]<-moran_ncf
   names(moran_ncf_alllakes[[day_number]])<-lake_day
   
-  semivar_alllakes<-rbind(semivar_alllakes, semivar)
+  semivar_alllakes<-smartbind(semivar_alllakes, semivar)
 
   setwd("E:/Dropbox/FLAME_NHLDLakes/")
   print(lake_day)
@@ -229,7 +229,7 @@ semivar_alllakes$Date <- ymd(semivar_alllakes$lake_day)
 semivar_alllakes$Lake <- gsub(".*_","",semivar_alllakes$lake_day)
 semivar_alllakes$Lake <- gsub("[0-9]","",semivar_alllakes$Lake )
 
-
+setwd("E:/Dropbox/FLAME_NHLDLakes/")
 #Export Data
 saveRDS(moran_ncf_alllakes, file='SpatialOutputs/moran_ncf_alllakes.rds')
 saveRDS(semivar_alllakes, file='SpatialOutputs/semivar_alllakes.rds')
