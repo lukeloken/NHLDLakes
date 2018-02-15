@@ -3,6 +3,30 @@ library(dplyr)
 library(tidyr)
 library(gtools)
 
+setwd("E:/Git_Repo/NHLDLakes")
+
+# ###########################
+# Lagos Data
+# ###########################
+
+lagos_data<-read.csv('E:/Dropbox/FLAME_NHLDLakes/Lake Information/lake_attributes.csv', header=T, stringsAsFactors = F)
+
+nhdIDs<-read.csv('E:/Dropbox/FLAME_NHLDLakes/Lake Information/NHD_IDs.csv', header=T, stringsAsFactors = F)
+nhdIDs$lakename<- sub(' ', '', nhdIDs$LagosName)
+nhdIDs$lakename<- sub(' ', '', nhdIDs$lakename)
+nhdIDs$lakename<- sub(' ', '', nhdIDs$lakename)
+nhdIDs$lakename<- sub('Saint', 'St', nhdIDs$lakename)
+nhdIDs$lakename<- sub('LakeHelen', 'HelenLake', nhdIDs$lakename)
+nhdIDs$lakename<- sub('LakeLaura', 'LauraLake', nhdIDs$lakename)
+nhdIDs$lakename<- sub('PresqueIsleRiverFlooding', 'PresqueIsleLake', nhdIDs$lakename)
+
+intersect(df$lakes, nhdIDs$lakename)
+nhdIDs$lakename[!is.element(nhdIDs$lakename, df$lakes)]
+
+lagosMerge<-merge(nhdIDs, lagos_data, by.x='Permanent.Identifier', by.y='nhdid', all=T)
+names(lagosMerge)[1]<-'nhdid'
+
+str(lagosMerge)
 
 # ########################
 # Prepare water chemistry data
@@ -49,10 +73,8 @@ df[nrow(df)+1,]<-c('PaulLake48Hours', 17)
 
 # write.table(df, file='LakeNames_SampleCount.csv', sep=",", row.names=F)
 
-
-
 # ###########################
-# Next step
+# Prepare Lake Sample Data
 # ###########################
 
 directories<-list.files(paste0(directory, '/Data'))
@@ -71,6 +93,7 @@ for (dir in directories_2015){
   if (length(file)==1){
     data1<-read.csv(paste(subdir, file, sep="/"), header=T, stringsAsFactors = F)
     data1$LakeName<-rep(lakename, nrow(data1))
+    data1$LakeDay<-rep(dir, nrow(data1))
     if (nrow(Lake_data)==0){
       Lake_data<-data1}
     else {
@@ -81,56 +104,21 @@ for (dir in directories_2015){
 str(Lake_data)
 
 
-# ####################
-# old code below
-# #####################
-
-
-# Convert long LTER datatable into a wide table
-LTERdata<-read.csv(paste(directory, '/LTER_WaterChemistry_2017Mar20.csv', sep=""), header=T, stringsAsFactors = F)
-
-
-# sample tests (e.g., DOC, NO3)
-# sample ids (LTER barcodes)
-tests<-unique(LTERdata$Test)
-samplesID<-unique(LTERdata$Sample.ID)
-
-# Convert long datatable into a wide table
-chemtable<-data.frame(matrix(ncol=1, nrow=length(samplesID)))
-names(chemtable)[1]<-c('Sample.ID')
-chemtable$Sample.ID<-samplesID
-
-for (test in tests){
-  testtable<-subset(LTERdata,Test==test)
-  smalltable<-testtable[,c(6,12)]
-  names(smalltable)[2]<-test
-  chemtable<-merge(chemtable, smalltable, by='Sample.ID', all.x=T)
-}
-
-str(chemtable)
-summary(chemtable)
-chemtable[chemtable==-99]<-NA
-
-
 # ###################
-# And merge with LTER
+# Merge Flame with LTER
+# still workin below
 # ###################
 
-AllMerged<- merge(All_data, chemtable, by.x='Sample.Number', by.y='Sample.ID', all.x=T)
+AllMerged<- merge(Lake_data, WaterChem_wide, by.x='Sample.Number', by.y='Sample.ID', all.x=T)
 head(AllMerged)
 
-splitnames2<-strsplit(AllMerged$folder, '_')
-str(splitnames2)
-vector2<-unlist(splitnames2)
-lakenames<-vector2[seq(2,length(vector2), 2)]
-dates<-as.Date(vector2[seq(1,length(vector2), 2)])
-
-AllMerged$LakeName<-lakenames
-AllMerged$Date<-dates
-
-names(AllMerged)<-sub(' ', '', as.character(names(AllMerged)))
+names(AllMerged)<-gsub(' ', '', as.character(names(AllMerged)))
 names(AllMerged)<-sub('\\(', '', as.character(names(AllMerged)))
 names(AllMerged)<-sub(")", '',as.character(names(AllMerged)))
+
+str(AllMerged)
+
+saveRDS(AllMerged, file='Data/NHLDLakes_WaterChemFLAME.rds')
 
 # Summarize by lake day
 
@@ -153,27 +141,6 @@ lakes.waterchem =
 lakes.waterchem
 lakes_df<-merge(df, lakes.waterchem, by.x='lakes', by.y='LakeName', all=T)
 
+saveRDS(lakes_df, file='Data/NHLDLakes_WaterChem.rds')
 
-nhdIDs<-read.csv('E:/Dropbox/FLAME_NHLDLakes/Lake Information/NHD_IDs.csv', header=T, stringsAsFactors = F)
-nhdIDs$lakename<- sub(' ', '', nhdIDs$Name)
-nhdIDs$lakename<- sub(' ', '', nhdIDs$lakename)
-nhdIDs$lakename<- sub(' ', '', nhdIDs$lakename)
-nhdIDs$lakename<- sub('Saint', 'St', nhdIDs$lakename)
-nhdIDs$lakename<- sub('LakeHelen', 'HelenLake', nhdIDs$lakename)
-nhdIDs$lakename<- sub('LakeLaura', 'LauraLake', nhdIDs$lakename)
-nhdIDs$lakename<- sub('PresqueIsleRiverFlooding', 'PresqueIsleLake', nhdIDs$lakename)
-
-intersect(df$lakes, nhdIDs$lakename)
-nhdIDs$lakename[!is.element(nhdIDs$lakename, df$lakes)]
-
-   
-lagos_data<-read.csv('E:/Dropbox/FLAME_NHLDLakes/Lake Information/lake_attributes.csv', header=T, stringsAsFactors = F)
-
-lagosMerge<-merge(nhdIDs, lagos_data, by.x='Permanent.Identifier', by.y='nhdid', all=T)
-names(lagosMerge)[1]<-'nhdid'
-
-flamechemlagosmerge<-merge(lakes_df, lagosMerge, by.x='lakes', by.y='lakename', all=T)
-
-
-write.table(flamechemlagosmerge, file='FLAMENHLDLakes_WaterChem_Lagos.csv', sep=",", row.names=F)
 
