@@ -7,6 +7,8 @@ library(hydrolinks)
 library(LAGOSNE)
 library(dplyr)
 
+setwd("E:/Git_Repo/NHLDLakes")
+
 #### Load Flame and WaterChem Data ####
 FlameData <- readRDS(file='Data/NHLDLakes_WaterChemFLAME.rds')
 str(FlameData)
@@ -22,12 +24,13 @@ LakeIDs<-nhdIDs$Permanent.Identifier
 lagos<-lagosne_load("1.087.1")
 
 # Subset Lagos using IDs and change class of columns
-mylagos <- lagos$locus %>% filter(as.character(nhdid) %in% LakeIDs)
-mylagos$nhdid<-as.character(mylagos$nhdid)
-mylagos$gnis_name<-as.character(mylagos$gnis_name)
+mylocus <- lagos$locus %>% filter(as.character(nhdid) %in% LakeIDs)
+mylocus$nhdid<-as.character(mylocus$nhdid)
+mylocus$gnis_name<-as.character(mylocus$gnis_name)
+mylocus$flame_name<-nhdIDs[match(mylocus$nhdid,nhdIDs$Permanent.Identifier),2]
 
 # Add additional tables to mylagos datatable
-mylagos <- left_join(mylagos, lagos$lakes_limno)
+mylagos <- left_join(mylocus, lagos$lakes_limno)
 mylagos <- left_join(mylagos, lagos$lakes.geo)
 mylagos <- left_join(mylagos, lagos$iws)
 mylagos <- left_join(mylagos, lagos$iws.conn)
@@ -35,4 +38,26 @@ mylagos <- left_join(mylagos, lagos$iws.lulc)
 mylagos <- left_join(mylagos, lagos$buffer100m.lulc)
 mylagos <- left_join(mylagos, lagos$buffer500m.lulc)
 
-saveRDS(mylagos, file='Data/MyLakesLagos.rds')
+#Make a table of mean water quality (nutrients, secchi, chemistry)
+mynuts <- left_join(mylocus, lagos$epi_nutr)
+nuts_summary <-
+  mynuts %>%
+  group_by(lagoslakeid) %>%
+  select(chla, colora, colort, dkn, doc, nh4, no2, no2no3, srp, tdn, tdp, tkn, tn, toc, ton, tp) %>%
+  summarise_all(funs(mean), na.rm=T)
+str(nuts_summary)
+
+mysecchi <- left_join(mylocus, lagos$secchi)
+secchi_summary <-
+  mysecchi %>%
+  group_by(lagoslakeid) %>%
+  select(secchi) %>%
+  summarise_all(funs(mean), na.rm=T)
+
+wq_summary<-left_join(nuts_summary, secchi_summary)
+
+#Merge water quality with lagosGeo tables
+mylagos2<-left_join(wq_summary, mylagos)
+
+setwd("E:/Git_Repo/NHLDLakes")
+saveRDS(mylagos2, file='Data/MyLakesLagos.rds')
