@@ -61,7 +61,7 @@ NHLD_Outline<-spTransform(NHLD_Outline, CRS(projection))
 polygonmatch<-c(rep(NA, length(filenames)))
 
 # Start loop for each filename
-lake_day=filenames[30]
+lake_day=filenames[1]
 for (lake_day in filenames){
   day_number<-which(filenames==lake_day )
   setwd(paste(getwd(),'/Data/', lake_day, sep=""))
