@@ -78,7 +78,7 @@ mtext('Semivariogram range (km)', 2, 2)
 
 dev.off()
 
-#Semivariogram range boxplots
+#Semivariogram range violin
 png("Figures/ViolinplotRangesm.png", res=200, width=6,height=4, units="in")
 
 par(mar=c(2,3,.5,.5))
@@ -89,17 +89,38 @@ p <- ggplot(b, aes(x=names, y=(model_range), fill=names, color=names)) +
   # scale_y_continuous(limits = c(-1, 5)) + 
   labs(x = "Variable", y='Semivariance range (m)') + 
   geom_violin(alpha=0.4, color='black', trim=F) + 
-  # geom_boxplot(width=0.05, color='black') + 
+  # geom_boxplot(width=0.5, color='black', notch=T) + 
   scale_fill_manual(values=varcolors[c(1,1,1,2,2,2,3,3)]) + 
   scale_color_manual(values=varcolors[c(1,1,1,2,2,2,3,3)]) + 
-  geom_jitter(width=0.02, size=1, alpha=1) + 
-  stat_summary(fun.y=median, geom="point", size=4, color='black', shape=18) + 
+  geom_jitter(width=0.02, size=1, alpha=1) +
+  stat_summary(fun.y=median, geom="point", size=4, color='black', shape=18) +
   theme_minimal() + 
   theme(legend.position="none")
 p 
 
 dev.off()
 
+#Semivariogram range boxplots
+png("Figures/GGBoxplotNotchesRangesm.png", res=200, width=6,height=4, units="in")
+
+par(mar=c(2,3,.5,.5))
+par(mgp=c(3,.3,0), tck=0)
+
+p <- ggplot(b, aes(x=names, y=(model_range), fill=names, color=names)) + 
+  scale_y_log10(labels=comma, limits=c(20,10000)) + 
+  # coord_cartesian(ylim=c(0, 7)) + 
+  labs(x = "Variable", y='Semivariance range (m)') + 
+  # geom_violin(alpha=0.4, color='black', trim=F) + 
+  geom_boxplot(width=0.5, color='black', notch=T, outlier.shape=NA) + 
+  scale_fill_manual(values=varcolors[c(1,1,1,2,2,2,3,3)]) + 
+  scale_color_manual(values=varcolors[c(1,1,1,2,2,2,3,3)]) + 
+  # geom_jitter(width=0.02, size=1, alpha=1) + 
+  # stat_summary(fun.y=median, geom="point", size=4, color='black', shape=18) + 
+  theme_bw() + 
+  theme(legend.position="none", panel.grid.minor= element_blank())
+p 
+
+dev.off()
 
 
 
