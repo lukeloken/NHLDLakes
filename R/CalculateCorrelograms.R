@@ -11,9 +11,9 @@ library(rgdal)
 library(gstat)
 library(geoR)
 library(lubridate)
+library(gtools)
 
 setwd("E:/Git_Repo/NHLDLakes")
-
 source('R/VariogramFunctions.R')
 
 # Set working directory to basemap location
@@ -50,16 +50,16 @@ lakes_Base<-spTransform(lakes_Base_UTM, CRS(projection))
 # ######################################
 
 # Lists to populate with correlogram and semivariogram stats
-# moran_ncf_alllakes<-list()
-# semivar_alllakes<-data.frame(matrix(nrow=0, ncol=8))
-# names(semivar_alllakes)<-c('lake_day', 'variable', 'model_type', 'psillexp', 'rangeexp', 'psillnug', 'rangenug', 'range95')
+moran_ncf_alllakes<-list()
+semivar_alllakes<-data.frame(matrix(nrow=0, ncol=10))
+names(semivar_alllakes)<-c('lake_day', 'variable', 'model_type', 'model_psill', 'model_range', 'model_nug', 'model_nugrange', 'range95', 'range_best', 'cutoff')
 
-#add data to existing files
-moran_ncf_alllakes<-readRDS(file='SpatialOutputs/moran_ncf_alllakes.rds')
-semivar_alllakes<-readRDS(file='SpatialOutputs/semivar_alllakes.rds')
+# add data to existing files 
+# moran_ncf_alllakes<-readRDS(file='SpatialOutputs/moran_ncf_alllakes.rds')
+# semivar_alllakes<-readRDS(file='SpatialOutputs/semivar_alllakes.rds')
+# donelakes <- unique(semivar_alllakes$lake_day)
+# filenames <- filenames[-which(filenames %in% donelakes)]
 
-donelakes <- unique(semivar_alllakes$lake_day)
-filenames <- filenames[-which(filenames %in% donelakes)]
 # Start loop for each filename
 lake_day=filenames[1]
 for (lake_day in filenames){
@@ -114,8 +114,8 @@ for (lake_day in filenames){
   
   #make lists for correlation
   moran_ncf<-list()
-  semivar<-data.frame(matrix(ncol=8, nrow=length(variables)))
-  names(semivar)<-c('lake_day', 'variable', 'model_type', 'psillexp', 'rangeexp', 'psillnug', 'rangenug', 'range95')
+  semivar<-data.frame(matrix(ncol=10, nrow=length(variables)))
+  names(semivar)<-c('lake_day', 'variable', 'model_type', 'model_psill', 'model_range', 'model_nug', 'model_nugrange', 'range95', 'range_best', 'cutoff')
   semivar$lake_day<-lake_day
   
   # Loop through variables
@@ -164,15 +164,20 @@ for (lake_day in filenames){
         #fit model to variogram
         v.fit <- fit.variogram(v, vgm(est_sill=est_sill, c("Lin", "Sph"), est_range=est_range, nugget=est_nugget), fit.method = 2)
         
+        # v.fit <- fit.variogram(v, vgm(c('Lin')), fit.method = 1)
+
         #Ouput model information
         model_type    <- as.character(v.fit[2,1])
-        psillexp <- v.fit$psill[2]
-        rangeexp <- v.fit$range[2]
-        psillnug <- v.fit$psill[1]
-        rangenug <- v.fit$range[1]
-        range95<-EffectiveRange(v.fit, window)
+        model_psill <- v.fit$psill[2]
+        model_range <- v.fit$range[2]
+        model_nug <- v.fit$psill[1]
+        model_nugrange <- v.fit$range[1]
+        range95 <- EffectiveRange(v.fit, window)
+        range_best <- model_range
+        if (range95>=cutoff){range95 <- Inf}
+        if (range_best>=cutoff){range_best<-Inf}
         
-        semivar[var_number,2:8] <- c(variable_names[var_number], model_type, psillexp, rangeexp, psillnug, rangenug, range95)
+        semivar[var_number,2:10] <- c(variable_names[var_number], model_type, model_psill, model_range, model_nug, model_nugrange, range95, range_best, cutoff)
         
         # ###################################
         # Plot correlogram and semivariogram
@@ -206,7 +211,8 @@ for (lake_day in filenames){
         
         mtext('Distance (m)', 1, 2)
         mtext('Semivariance', 2, 2)
-        legend('bottom', inset=0.01, c(variable_names[var_number], as.character(paste0("Model = ", model_type))), bty='n')
+        legend('top', inset=0.01, variable_names[var_number], bty='n')
+        legend('bottomright', inset=0.01, c(as.character(paste0("Model = ", model_type)), paste0('Range = ', signif(range_best, 3))), bty='n')
         
         dev.off()
       }
@@ -215,9 +221,10 @@ for (lake_day in filenames){
   
   #output data
   moran_ncf_alllakes[[day_number]]<-moran_ncf
-  names(moran_ncf_alllakes[[day_number]])<-lake_day
+  names(moran_ncf_alllakes)[[day_number]]<-lake_day
   
-  semivar_alllakes<-smartbind(semivar_alllakes, semivar)
+  if(nrow(semivar_alllakes)==0){semivar_alllakes<-semivar
+  } else {semivar_alllakes<-smartbind(semivar_alllakes, semivar)}
 
   setwd("E:/Dropbox/FLAME_NHLDLakes/")
   print(lake_day)
@@ -225,9 +232,10 @@ for (lake_day in filenames){
 }
   
 semivar_alllakes[,4:8] <- apply(semivar_alllakes[,4:8], 2, as.numeric)
-semivar_alllakes$Date <- ymd(semivar_alllakes$lake_day)
+semivar_alllakes$Date <- ymd(substr(semivar_alllakes$lake_day, start=1, stop=10))
 semivar_alllakes$Lake <- gsub(".*_","",semivar_alllakes$lake_day)
 semivar_alllakes$Lake <- gsub("[0-9]","",semivar_alllakes$Lake )
+semivar_alllakes$range_best <- as.numeric(semivar_alllakes$range_best)
 
 setwd("E:/Dropbox/FLAME_NHLDLakes/")
 #Export Data
