@@ -231,11 +231,10 @@ for (lake_day in filenames){
   
 }
   
-semivar_alllakes[,4:8] <- apply(semivar_alllakes[,4:8], 2, as.numeric)
+semivar_alllakes[,4:10] <- apply(semivar_alllakes[,4:10], 2, as.numeric)
 semivar_alllakes$Date <- ymd(substr(semivar_alllakes$lake_day, start=1, stop=10))
 semivar_alllakes$Lake <- gsub(".*_","",semivar_alllakes$lake_day)
 semivar_alllakes$Lake <- gsub("[0-9]","",semivar_alllakes$Lake )
-semivar_alllakes$range_best <- as.numeric(semivar_alllakes$range_best)
 
 setwd("E:/Dropbox/FLAME_NHLDLakes/")
 #Export Data
