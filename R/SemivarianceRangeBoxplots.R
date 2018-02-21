@@ -22,12 +22,13 @@ b<-subset(semivar_alllakes, variable %in% c('TmpC_h', 'SPCScm_h', 'TrbFNU_h', 'f
 b$names <- boxnames[match(b$variable, c('TmpC_h', 'SPCScm_h', 'TrbFNU_h', 'fDOMRFU_h',  'pH_h', 'ODOmgL_h', 'ChlARFU_h', 'BGAPCRFU_h'))]
 b$names<-factor(b$names, levels=boxnames)
 
-plot(semivar_alllakes$range95, semivar_alllakes$range_best)
-abline(0,1)
+b[which(b[,c('range_best')]==Inf), c('range_best')]<-b[which(b[,c('range_best')]==Inf), c('cutoff')]
+
+
 
 range_best <-
-  semivar_alllakes %>%
-  select(lake_day, variable, range_best) %>%
+  b %>%
+  select(lake_day, variable, range_best, cutoff) %>%
   spread(key=variable, value=range_best) %>%
   select(lake_day, TmpC_h, SPCScm_h, TrbFNU_h, fDOMRFU_h,  pH_h, ODOmgL_h, ChlARFU_h, BGAPCRFU_h)
 
@@ -67,6 +68,17 @@ mtext('Semivariogram range (m)', 2, 2)
 dev.off()
 
 #Semivariogram range boxplots
+png("Figures/BoxplotRanges_withcutoff.png", res=200, width=6,height=4, units="in")
+
+par(mar=c(3,3,.5,.5))
+par(mgp=c(3,.5,0), tck=0.01)
+boxplot(range_best[,3:ncol(range_best)], names=boxnames, col=varcolors[c(1,1,1,2,2,2,3,3)], pch=NA, boxwex=0.6, outlier=NA, ylim=c(0,2000))
+
+mtext('Semivariogram range (m)', 2, 2)
+
+dev.off()
+
+#Semivariogram range boxplots
 png("Figures/BoxplotRangeskm_NoOutliers.png", res=200, width=6,height=4, units="in")
 
 par(mar=c(2,3,.5,.5))
@@ -100,6 +112,29 @@ p
 
 dev.off()
 
+#Semivariogram range violin
+png("Figures/ViolinplotRangesm_withcutoff.png", res=200, width=6,height=4, units="in")
+
+par(mar=c(2,3,.5,.5))
+par(mgp=c(3,.3,0), tck=0)
+
+p <- ggplot(b, aes(x=names, y=(range_best), fill=names, color=names)) + 
+  scale_y_continuous(labels=comma, limits=c(0,3000)) + 
+  # scale_y_continuous(limits = c(-1, 5)) + 
+  labs(x = "Variable", y='Semivariance range (m)') + 
+  geom_violin(alpha=0.4, color='black', trim=F) + 
+  # geom_boxplot(width=0.5, color='black', notch=T) + 
+  scale_fill_manual(values=varcolors[c(1,1,1,2,2,2,3,3)]) + 
+  scale_color_manual(values=varcolors[c(1,1,1,2,2,2,3,3)]) + 
+  geom_jitter(width=0.02, size=1, alpha=1) +
+  stat_summary(fun.y=median, geom="point", size=4, color='black', shape=18) +
+  theme_minimal() + 
+  theme(legend.position="none")
+p 
+
+dev.off()
+
+
 #Semivariogram range boxplots
 png("Figures/GGBoxplotNotchesRangesm.png", res=200, width=6,height=4, units="in")
 
@@ -121,6 +156,31 @@ p <- ggplot(b, aes(x=names, y=(model_range), fill=names, color=names)) +
 p 
 
 dev.off()
+
+
+
+#Semivariogram range boxplots
+png("Figures/GGBoxplotNotchesRangesm_withcutoff.png", res=200, width=6,height=4, units="in")
+
+par(mar=c(2,3,.5,.5))
+par(mgp=c(3,.3,0), tck=0)
+
+p <- ggplot(b, aes(x=names, y=(range_best), fill=names, color=names)) + 
+  scale_y_continuous(limits=c(0,2000)) + 
+  # coord_cartesian(ylim=c(0, 7)) + 
+  labs(x = "Variable", y='Semivariance range (m)') + 
+  # geom_violin(alpha=0.4, color='black', trim=F) + 
+  geom_boxplot(width=0.5, color='black', notch=T, outlier.shape=NA) + 
+  scale_fill_manual(values=varcolors[c(1,1,1,2,2,2,3,3)]) + 
+  scale_color_manual(values=varcolors[c(1,1,1,2,2,2,3,3)]) + 
+  # geom_jitter(width=0.02, size=1, alpha=1) + 
+  # stat_summary(fun.y=median, geom="point", size=4, color='black', shape=18) + 
+  theme_bw() + 
+  theme(legend.position="none", panel.grid.minor= element_blank())
+p 
+
+dev.off()
+
 
 
 
@@ -222,6 +282,110 @@ mtext('Range temperature (m)', 1,2)
 mtext('Range Turbidity (m)', 2,2)
 
 dev.off()
+
+
+
+
+
+png("Figures/ScatterRangesTempvsOthers_withcutoff.png", res=200, width=6,height=6, units="in")
+par(mar=c(3,3,.5,.5))
+par(mgp=c(3,.5,0), tck=-0.02)
+
+colors<-c('black', 'black', brewer.pal(3,"Blues")[c(2,3)], brewer.pal(3,"Reds"), brewer.pal(3,"Greens")[c(2,3)])
+lim=c(0,2000)
+# lim=range(range_model[,2:ncol(range_best)])
+
+column<-3
+for (column in 3:ncol(range_best)){
+  if (column ==3){
+    
+    plot(range_best$TmpC_h, range_best[,column], col=colors[column], pch=16, xlab='', ylab='', xlim=lim, ylim=lim)
+    abline(0,1, lty=3)
+    mtext('Range temperature (m)', 1,2)
+    mtext('Range other variabless (m)', 2,2)
+    legend('topleft', inset=0.01, boxnames[2:length(boxnames)], text.col=colors[3:length(colors)], bty='n', x.intersp=0)
+  } else {
+    points(range_best$TmpC_h, range_best[,column], col=colors[column], pch=16, xlab='', ylab='')
+  }
+}
+
+dev.off()
+
+
+
+png("Figures/ScatterRangesSPCvsOthers_withcutoff.png", res=200, width=6,height=6, units="in")
+par(mar=c(3,3,.5,.5))
+par(mgp=c(3,.5,0), tck=-0.02)
+
+colors<-c('black', 'black', brewer.pal(3,"Blues")[c(2,3)], brewer.pal(3,"Reds"), brewer.pal(3,"Greens")[c(2,3)])
+lim=c(0,2000)
+# lim=range(range_model[,2:ncol(range_best)])
+
+column<-3
+for (column in 3:ncol(range_best)){
+  if (column ==3){
+    
+    plot(range_best[,3], range_best$TmpC_h, col=colors[3], pch=16, xlab='', ylab='', xlim=lim, ylim=lim)
+    abline(0,1, lty=3)
+    mtext('Range SPC (m)', 1,2)
+    mtext('Range other variabless (m)', 2,2)
+    legend('topleft', boxnames[c(1,3:length(boxnames))], text.col=colors[3:length(colors)], bty='n', x.intersp=0)
+  } else {
+    points(range_best[,3], range_best[,column], col=colors[column], pch=16, xlab='', ylab='')
+  }
+}
+
+dev.off()
+
+
+png("Figures/ScatterRangesTempvsBGA_withcutoff.png", res=200, width=6,height=6, units="in")
+par(mar=c(3,3,.5,.5))
+par(mgp=c(3,.5,0), tck=-0.02)
+
+colors<-c('black', 'black', brewer.pal(3,"Blues")[c(2,3)], brewer.pal(3,"Reds"), brewer.pal(3,"Greens")[c(2,3)])
+lim=c(0,2000)
+# lim=range(model_best[,2:ncol(range_best)])
+
+plot(range_best$TmpC_h, range_best$BGAPCRFU_h, col=varcolors[3], pch=16, xlab='', ylab='', xlim=lim, ylim=lim)
+abline(0,1, lty=3)
+mtext('Range temperature (m)', 1,2)
+mtext('Range BGA (m)', 2,2)
+
+dev.off()
+
+
+
+png("Figures/ScatterRangesTempvschla_withcutoff.png", res=200, width=6,height=6, units="in")
+par(mar=c(3,3,.5,.5))
+par(mgp=c(3,.5,0), tck=-0.02)
+
+colors<-c('black', 'black', brewer.pal(3,"Blues")[c(2,3)], brewer.pal(3,"Reds"), brewer.pal(3,"Greens")[c(2,3)])
+lim=c(0,2000)
+# lim=range(model_best[,2:ncol(range_best)])
+
+plot(range_best$TmpC_h, range_best$ChlARFU_h, col=varcolors[3], pch=16, xlab='', ylab='', xlim=lim, ylim=lim)
+abline(0,1, lty=3)
+mtext('Range temperature (m)', 1,2)
+mtext('Range Chl a (m)', 2,2)
+
+dev.off()
+
+
+png("Figures/ScatterRangesTempvsTurb_withcutoff.png", res=200, width=6,height=6, units="in")
+par(mar=c(3,3,.5,.5))
+par(mgp=c(3,.5,0), tck=-0.02)
+
+colors<-c('black', 'black', brewer.pal(3,"Blues")[c(2,3)], brewer.pal(3,"Reds"), brewer.pal(3,"Greens")[c(2,3)])
+lim=c(0,2000)
+# lim=range(model_best[,2:ncol(range_best)])
+
+plot(range_best$TmpC_h, range_best$TrbFNU_h, col=varcolors[1], pch=16, xlab='', ylab='', xlim=lim, ylim=lim)
+abline(0,1, lty=3)
+mtext('Range temperature (m)', 1,2)
+mtext('Range Turbidity (m)', 2,2)
+
+dev.off()
+
 
 
 
