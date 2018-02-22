@@ -27,6 +27,7 @@ filenames <- list.files(path = paste(getwd(), "/Data", sep=""))
 
 # subset filenames for new lakes
 filenames<-filenames[-grep('2014', filenames)]
+filenames<-filenames[-grep('TenderfootCreek', filenames)]
 
 # How much data to subset (data/subset)
 # subset = 1; keep all data
