@@ -11,11 +11,13 @@ setwd("E:/Git_Repo/NHLDLakes")
 
 #### Load Flame and WaterChem Data ####
 FlameData <- readRDS(file='Data/NHLDLakes_WaterChemFLAME.rds')
+ChemData <- readRDS(file='Data/NHLDLakes_WaterChem_middle.rds')
 str(FlameData)
 lakenames <- unique(FlameData $LakeName)
 
 #### Load NHD IDs ####
 nhdIDs<-read.csv('E:/Dropbox/FLAME_NHLDLakes/Lake Information/NHD_IDs.csv', header=T, stringsAsFactors = F)
+nhdIDs<-nhdIDs[nhdIDs$FlameName!='TurtleFlambeauFlowage',]
 LakeIDs<-nhdIDs$Permanent.Identifier
 
 #### LAGOS data using nhd ids ####
@@ -43,7 +45,7 @@ mynuts <- left_join(mylocus, lagos$epi_nutr)
 nuts_summary <-
   mynuts %>%
   group_by(lagoslakeid) %>%
-  select(chla, colora, colort, dkn, doc, nh4, no2, no2no3, srp, tdn, tdp, tkn, tn, toc, ton, tp) %>%
+  dplyr::select(chla, colora, colort, dkn, doc, nh4, no2, no2no3, srp, tdn, tdp, tkn, tn, toc, ton, tp) %>%
   summarise_all(funs(mean), na.rm=T)
 str(nuts_summary)
 
@@ -51,7 +53,7 @@ mysecchi <- left_join(mylocus, lagos$secchi)
 secchi_summary <-
   mysecchi %>%
   group_by(lagoslakeid) %>%
-  select(secchi) %>%
+  dplyr::select(secchi) %>%
   summarise_all(funs(mean), na.rm=T)
 
 wq_summary<-left_join(nuts_summary, secchi_summary)
@@ -61,3 +63,4 @@ mylagos2<-left_join(wq_summary, mylagos)
 
 setwd("E:/Git_Repo/NHLDLakes")
 saveRDS(mylagos2, file='Data/MyLakesLagos.rds')
+
