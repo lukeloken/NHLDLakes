@@ -40,7 +40,7 @@ WaterChem_raw$Value[WaterChem_raw$Flags %in% BADFLAGS]<-NA
 WaterChem_raw$Value[WaterChem_raw$Value == (-99)]<-NA
 
 #omit weird columns and spread datatable
-WaterChem_slim<-select(WaterChem_raw, Event, Location, Sample.Name, Date, Sample.ID, Test, Value)
+WaterChem_slim<-dplyr::select(WaterChem_raw, Event, Location, Sample.Name, Date, Sample.ID, Test, Value)
 
 WaterChem_wide<-spread(WaterChem_slim, key=Test, value=Value)
 
@@ -125,7 +125,7 @@ saveRDS(AllMerged, file='Data/NHLDLakes_WaterChemFLAME.rds')
 lakes.waterchem = 
   AllMerged %>%
   group_by(LakeName) %>%
-  select(DOC, TotalNF, TotalNUF, TotalPF, TotalPUF, NH4, NO3NO2, SRP, Cl) %>%
+  dplyr::select(DOC, TotalNF, TotalNUF, TotalPF, TotalPUF, NH4, NO3NO2, SRP, Cl) %>%
   summarise(
     DOC_AVG = mean(DOC, na.rm=T),
     TotalNF_AVG = mean(TotalNF, na.rm=T),
@@ -142,5 +142,6 @@ lakes.waterchem
 lakes_df<-merge(df, lakes.waterchem, by.x='lakes', by.y='LakeName', all=T)
 
 saveRDS(lakes_df, file='Data/NHLDLakes_WaterChem.rds')
+write.table(lakes_df, file='Data/NHLDLakes_WaterChem.csv', sep=',', row.names=F)
 
 
