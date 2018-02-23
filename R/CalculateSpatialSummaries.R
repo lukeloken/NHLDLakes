@@ -35,7 +35,7 @@ lagos_summary
 # Get table of spatial summaries for all flame runs on Lake Mendota
 merged_summary<-readRDS('Data/FlameSpatialSummaries.rds')
 vars<-names(merged_summary)
-orderedvars<-c("TempC_t", "SPCScm_t",  "TrbFNU_t", "fDOMRFU_t",  "pH_tau", "ODOmgL_t", "ChlARFU_t", "BGAPCRFU_t", "CO2uM_t", "CH4uM_t", "NITRATEM", "ABS254", "ABS350")
+orderedvars<-c("TempC_t", "SPCScm_t",  "TrbFNU_t", "fDOMRFU_t",  "pH_tau", "ODOmgL_t", "ChlARFU_t", "ChlAgL_t", "BGAPCRFU_t", "BGAPCgL_t", "CO2uM_t", "CH4uM_t", "NITRATEM", "ABS254", "ABS350")
 goodvars <- vars[which(vars %in% orderedvars)]
 
 
