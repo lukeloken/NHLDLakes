@@ -69,8 +69,8 @@ data_tau$VariableFactor = factor(data_tau$Variable,tauvars)
 # ##############
 
 # Boxplots of spatial variability across variables
-png("Figures/spatialheterogeneityvariables.png", res=200, width=4.5,height=10, units="in")
-par(mfrow=c(5,1))
+png("Figures/spatialheterogeneityvariables.png", res=200, width=4.5,height=12, units="in")
+par(mfrow=c(6,1))
 par(mar=c(1.5,3,.5,.5), oma=c(2.5,1,0,0))
 par(mgp=c(2, .5, 0))
 
@@ -91,6 +91,12 @@ mtext('MADM over median', 2, 2)
 boxplot(data_short$QuartileDispersion ~ data_short$VariableFactor, ylim=c(0,.8), ylab='', names=NA, boxwex=boxwex, col=colors[variabletype] )
 axis(1, labels=shortnames, at=1:length(goodvars))
 mtext('QuartileDispersion', 2, 2)
+
+#boxplots of SDL
+boxplot(data_short$SDL ~ data_short$VariableFactor, ylim=c(0,.5), ylab='', names=NA, boxwex=boxwex, col=colors[variabletype] )
+axis(1, labels=shortnames, at=1:length(goodvars))
+mtext('SDL', 2, 2)
+
 
 #boxplots of skewness
 boxplot((data_short$skewness) ~ data_short$VariableFactor, ylim=c(-5,5), ylab='', names=NA, boxwex=boxwex, col=colors[variabletype] )
