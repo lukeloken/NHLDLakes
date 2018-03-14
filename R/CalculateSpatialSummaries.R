@@ -5,9 +5,9 @@ library(lubridate)
 library(stringr)
 library(dplyr)
 library(tidyr)
-source('R/AddAlpha.R')
 
 setwd("E:/Git_Repo/NHLDLakes")
+source('R/AddAlpha.R')
 
 #Get Lagos data
 mylagos2<-readRDS(file='Data/MyLakesLagos.rds')
@@ -32,8 +32,9 @@ Statistic<-c('Median', 'Mean', 'Min', 'Max')
 lagos_summary<-data.frame(Statistic, as.data.frame(rbind(median_lagos, mean_lagos, min_lagos, max_lagos)))
 lagos_summary
 
-# Get table of spatial summaries for all flame runs on Lake Mendota
+# Get table of spatial summaries for all flame runs
 merged_summary<-readRDS('Data/FlameSpatialSummaries.rds')
+merged_points<-readRDS('Data/FlamePointsSummaries.rds')
 vars<-names(merged_summary)
 orderedvars<-c("TempC_t", "SPCScm_t",  "TrbFNU_t", "fDOMRFU_t",  "pH_tau", "ODOmgL_t", "ChlARFU_t", "ChlAgL_t", "BGAPCRFU_t", "BGAPCgL_t", "CO2uM_t", "CH4uM_t", "NITRATEM", "ABS254", "ABS350")
 goodvars <- vars[which(vars %in% orderedvars)]
@@ -56,6 +57,10 @@ max_table <- merged_summary %>%
   summarize_at(goodvars, max, na.rm=T)
 
 range_mean <- merged_summary %>%
+  filter(Statistic == 'range') %>%
+  summarize_at(goodvars, mean, na.rm=T)
+
+range_points_mean <- merged_points %>%
   filter(Statistic == 'range') %>%
   summarize_at(goodvars, mean, na.rm=T)
 
