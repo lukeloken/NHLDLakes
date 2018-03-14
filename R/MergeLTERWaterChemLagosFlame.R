@@ -1,3 +1,5 @@
+rm(list = ls())
+
 library(lubridate)
 library(dplyr)
 library(tidyr)
@@ -6,10 +8,8 @@ library(gtools)
 setwd("E:/Git_Repo/NHLDLakes")
 
 # ###########################
-# Lagos Data
+# nhdID Data
 # ###########################
-
-lagos_data<-read.csv('E:/Dropbox/FLAME_NHLDLakes/Lake Information/lake_attributes.csv', header=T, stringsAsFactors = F)
 
 nhdIDs<-read.csv('E:/Dropbox/FLAME_NHLDLakes/Lake Information/NHD_IDs.csv', header=T, stringsAsFactors = F)
 nhdIDs$lakename<- sub(' ', '', nhdIDs$LagosName)
@@ -20,13 +20,6 @@ nhdIDs$lakename<- sub('LakeHelen', 'HelenLake', nhdIDs$lakename)
 nhdIDs$lakename<- sub('LakeLaura', 'LauraLake', nhdIDs$lakename)
 nhdIDs$lakename<- sub('PresqueIsleRiverFlooding', 'PresqueIsleLake', nhdIDs$lakename)
 
-intersect(df$lakes, nhdIDs$lakename)
-nhdIDs$lakename[!is.element(nhdIDs$lakename, df$lakes)]
-
-lagosMerge<-merge(nhdIDs, lagos_data, by.x='Permanent.Identifier', by.y='nhdid', all=T)
-names(lagosMerge)[1]<-'nhdid'
-
-str(lagosMerge)
 
 # ########################
 # Prepare water chemistry data
@@ -38,6 +31,8 @@ str(WaterChem_raw)
 BADFLAGS<-LETTERS[c(1:2,6:13, 15:16)]
 WaterChem_raw$Value[WaterChem_raw$Flags %in% BADFLAGS]<-NA
 WaterChem_raw$Value[WaterChem_raw$Value == (-99)]<-NA
+
+WaterChem_raw$Value[WaterChem_raw$Sample.ID == 14656 & WaterChem_raw$Test=='Total P (UF)']<-NA
 
 #omit weird columns and spread datatable
 WaterChem_slim<-dplyr::select(WaterChem_raw, Event, Location, Sample.Name, Date, Sample.ID, Test, Value)
@@ -70,8 +65,6 @@ df[nrow(df)+1,]<-c('TuesdayLakeEWI', 16)
 df[nrow(df)+1,]<-c('SparklingLake48Hours', 19)
 df[nrow(df)+1,]<-c('PeterLake48Hours', 17)
 df[nrow(df)+1,]<-c('PaulLake48Hours', 17)
-
-# write.table(df, file='LakeNames_SampleCount.csv', sep=",", row.names=F)
 
 # ###########################
 # Prepare Lake Sample Data
@@ -117,6 +110,8 @@ names(AllMerged)<-sub('\\(', '', as.character(names(AllMerged)))
 names(AllMerged)<-sub(")", '',as.character(names(AllMerged)))
 
 str(AllMerged)
+samplenames<-unique(AllMerged$Sample.Notes)
+middlenames<-c('deep hole', 'Deep Hole', 'LTER float', 'Central Bay', 'LTER float', 'deephole', 'lter bouy', 'pelagic', 'southern basin(pelagic)', 'middle of lake, pelagic', "Pelagic, middle of the lake", "Deep hole", "center", "South Basin- Deep Hole LTER site", "DNR buoy, middle of the lake", 'south basin', NA)
 
 saveRDS(AllMerged, file='Data/NHLDLakes_WaterChemFLAME.rds')
 
@@ -141,7 +136,40 @@ lakes.waterchem =
 lakes.waterchem
 lakes_df<-merge(df, lakes.waterchem, by.x='lakes', by.y='LakeName', all=T)
 
+#Middle only
+lakes.waterchem.middle = 
+  AllMerged %>%
+  filter(Sample.Notes %in% middlenames | LakeName %in% c('LauraLake', 'SpiderLake')) %>%
+  group_by(LakeName) %>%
+  dplyr::select(DOC, TotalNF, TotalNUF, TotalPF, TotalPUF, NH4, NO3NO2, SRP, Cl) %>%
+  summarise(
+    DOC_AVG = mean(DOC, na.rm=T),
+    TotalNF_AVG = mean(TotalNF, na.rm=T),
+    TotalNUF_AVG = mean(TotalNUF, na.rm=T),
+    TotalPF_AVG = mean(TotalPF, na.rm=T),
+    TotalPUF_AVG = mean(TotalPUF, na.rm=T),
+    NH4_AVG = mean(NH4, na.rm=T),
+    NO3NO2_AVG = mean(NO3NO2, na.rm=T),
+    SRP_AVG = mean(SRP, na.rm=T),
+    Cl_AVG = mean(Cl, na.rm=T)
+  )
+
+lakes.waterchem.middle
+lakes_df_middle<-merge(df, lakes.waterchem.middle, by.x='lakes', by.y='LakeName', all=T)
+
+nomiddlelakes<-setdiff(lakes.waterchem$LakeName, lakes.waterchem.middle$LakeName)
+AllMerged[AllMerged$LakeName %in% nomiddlelakes,c(2, 6, 65)]
+
 saveRDS(lakes_df, file='Data/NHLDLakes_WaterChem.rds')
 write.table(lakes_df, file='Data/NHLDLakes_WaterChem.csv', sep=',', row.names=F)
 
+saveRDS(lakes_df_middle, file='Data/NHLDLakes_WaterChem_middle.rds')
+write.table(lakes_df_middle, file='Data/NHLDLakes_WaterChem_middle.csv', sep=',', row.names=F)
 
+
+
+middlenames<-names(lakes_df_middle)
+lakechemsummary<-lakes_df_middle %>%
+  summarize_at(middlenames[3:11], c('mean', 'median', 'min', 'max', 'sd'), na.rm=T)
+
+lakechemsummary<-as.data.frame(summary(lakes_df_middle[,3:11]))
