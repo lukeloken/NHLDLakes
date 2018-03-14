@@ -196,7 +196,7 @@ for (lake_day in filenames){
         axis(1, tck = .02)
         axis(2, tck = .02, las=1)
         mtext("Distance (m)", 1, 1.5)
-        mtext("Correlation", 2, 1.5)
+        mtext("Moran I", 2, 1.5)
         legend('top', inset=0.01, variable_names[var_number], bty='n')
         box(which='plot')
         
