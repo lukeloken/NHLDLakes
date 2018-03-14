@@ -28,26 +28,26 @@ b[which(b[,c('range_best')]==Inf), c('range_best')]<-b[which(b[,c('range_best')]
 
 range_best <-
   b %>%
-  select(lake_day, variable, range_best, cutoff) %>%
+  dplyr::select(lake_day, variable, range_best, cutoff) %>%
   spread(key=variable, value=range_best) %>%
-  select(lake_day, TmpC_h, SPCScm_h, TrbFNU_h, fDOMRFU_h,  pH_h, ODOmgL_h, ChlARFU_h, BGAPCRFU_h)
+  dplyr::select(lake_day, TmpC_h, SPCScm_h, TrbFNU_h, fDOMRFU_h,  pH_h, ODOmgL_h, ChlARFU_h, BGAPCRFU_h)
 
 
 boxplot(range_best[2:ncol(range_best)], names=boxnames)
 
 range_95 <-
   semivar_alllakes %>%
-  select(lake_day, variable, range95) %>%
+  dplyr::select(lake_day, variable, range95) %>%
   spread(key=variable, value=range95) %>%
-  select(lake_day, TmpC_h, SPCScm_h, TrbFNU_h, fDOMRFU_h,  pH_h, ODOmgL_h, ChlARFU_h, BGAPCRFU_h)
+  dplyr::select(lake_day, TmpC_h, SPCScm_h, TrbFNU_h, fDOMRFU_h,  pH_h, ODOmgL_h, ChlARFU_h, BGAPCRFU_h)
 
 boxplot(range_95[2:ncol(range_95)], names=boxnames)
 
 range_model <-
   semivar_alllakes %>%
-  select(lake_day, variable, model_range) %>%
+  dplyr::select(lake_day, variable, model_range) %>%
   spread(key=variable, value=model_range) %>%
-  select(lake_day, TmpC_h, SPCScm_h, TrbFNU_h, fDOMRFU_h,  pH_h, ODOmgL_h, ChlARFU_h, BGAPCRFU_h)
+  dplyr::select(lake_day, TmpC_h, SPCScm_h, TrbFNU_h, fDOMRFU_h,  pH_h, ODOmgL_h, ChlARFU_h, BGAPCRFU_h)
 
 
 saveRDS(range_model, file='SpatialOutputs/rangemodeltable.rds')
