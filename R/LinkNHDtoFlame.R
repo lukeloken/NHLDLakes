@@ -34,6 +34,8 @@ mylocus$flame_name<-nhdIDs[match(mylocus$nhdid,nhdIDs$Permanent.Identifier),2]
 # Add additional tables to mylagos datatable
 mylagos <- left_join(mylocus, lagos$lakes_limno)
 mylagos <- left_join(mylagos, lagos$lakes.geo)
+mylagos$ShorelineIndex <- mylagos$lake_perim_meters/(2*sqrt(mylagos$lake_area_ha*10000))
+
 mylagos <- left_join(mylagos, lagos$iws)
 mylagos <- left_join(mylagos, lagos$iws.conn)
 mylagos <- left_join(mylagos, lagos$iws.lulc)
@@ -46,7 +48,7 @@ nuts_summary <-
   mynuts %>%
   group_by(lagoslakeid) %>%
   dplyr::select(chla, colora, colort, dkn, doc, nh4, no2, no2no3, srp, tdn, tdp, tkn, tn, toc, ton, tp) %>%
-  summarise_all(funs(mean), na.rm=T)
+  summarise_all(funs(mean, median), na.rm=T)
 str(nuts_summary)
 
 mysecchi <- left_join(mylocus, lagos$secchi)
