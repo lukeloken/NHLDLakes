@@ -80,6 +80,9 @@ for (lake_day in filenames){
   # Can also pick variable names(data)
   # variables <- c('CO2St_t', 'CO2uM_t', 'CH4St_t', 'CH4uM_t', 'TempC_t')
   
+  minvars<-data.frame(variable=c("ChlARFU", "ChlAugL", "BGAPCRFU", "BGAPCgL", "TurbFNU", "fDOMRFU", "fDOMQSU", "ChlARFU_h", "ChlARFU_t", "ChlAgL_h", "ChlAgL_t", "BGAPCRFU_h", "BGAPCRFU_t", "BGAPCgL_h", "BGAPCgL_t", "TrbFNU_h", "TrbFNU_t", "fDOMRFU_h", "fDOMRFU_t", "fDOMQSU_h", "fDOMQSU_t"))
+  minvars$minimum=c(-0.5)
+  
   # ========================
   # Find appropraite lake polygon
   # ========================
@@ -165,8 +168,8 @@ for (lake_day in filenames){
     
     # Make an empty summary table for each filename
     # This will be populated with summary stats for each variable
-    summary_lake<-as.data.frame(matrix(nrow=length(variables), ncol=17))
-    names(summary_lake)<-c('Min', 'Q1', 'Median', 'Mean', 'Q3', 'Max', 'sd', 'n', 'mad', 'MADM', 'skewness', 'loc', 'scale', 'shape', 'CV', 'QuartileDispersion', 'MADMOverMedian')
+    summary_lake<-as.data.frame(matrix(nrow=length(variables), ncol=22))
+    names(summary_lake)<-c('Min', 'Q25', 'Median', 'Mean', 'Q75', 'Max', 'Q05', 'Q10', 'Q90', 'Q95', 'sd', 'SDL', 'n', 'mad', 'MADM', 'skewness', 'loc', 'scale', 'shape', 'CV', 'QuartileDispersion', 'MADMOverMedian')
     
     # ==========================================
     # Start of loop to run through each variable  
@@ -190,9 +193,15 @@ for (lake_day in filenames){
       # Skip variable if all NAs
       if (length(data2)>0){
         
+        #Add minimum if its a variable that has potential negative values
+        if (var %in% minvars[,1]){
+          minimum<-minvars[which(var==minvars[,1]),2]
+          data2@data[,column]<-data2@data[,column]-minimum
+        }
+        
         # Plot Timeseries of variable
         # Make sure data seem reasonable
-        plot(data@data[,column1], type="p")
+        # plot(data@data[,column1], type="p")
         
         #Transform data into UTM's. This way distance is in meters (m)
         data2<-spTransform(data2, CRS(projection))
@@ -220,26 +229,27 @@ for (lake_day in filenames){
         # spplot(predict, names(predict)[1], colorkey=TRUE, cuts=99, sp.layout=list(lake_polygon['Lake_Name'], col=1, fill=0, lwd=3, lty=1, first=F) , main=paste(var, "_prediction_inverse_distance_weight", sep=""), xlim=bbox(lake_polygon)[1,], ylim=bbox(lake_polygon)[2,])
         
         # Create summary stats for variable
-        summary(predict)
         values<-predict@data[,1]
         
+        
+        basic_stats<-summary(values)
+        quantiles<-quantile(values, probs = c(0.05, .1, .9, 0.95),  na.rm = TRUE)
+        
+        summary_var<-c(basic_stats, quantiles, sd=sd(values), SDL=sd(log10(values), na.rm=T), n=length(values), mad=mad(values), MADM=median(abs(values-median(values))), skewness=skewness(values, na.rm = T))
+        
+        
+        # Save summary info to summary table
+        summary_lake[var_number,1:16]<-summary_var
+        
         #if zero heterogeneity exists, skip evd and plotting
-        if (identical(round(min(values),3), round(max(values), 3))){
+        if (identical(round(min(values), 3), round(max(values),3))==FALSE){
           
-          summary_var<-c(summary(values), sd=sd(values), n=length(values), mad=mad(values), MADM=median(abs(values-median(values))), skewness=skewness(values, na.rm = T), rep(NA,3))
-          
-          # Save summary info to summary table
-          summary_lake[var_number,1:14]<-summary_var
-        } else {
-          
+          # hist(values,breaks=20, xlab=var, main="", col="grey")
           evd<-fgev(values, std.err=F)
-          
-          summary_var<-c(summary(values), sd=sd(values), n=length(values), mad=mad(values), MADM=median(abs(values-median(values))), skewness=skewness(values, na.rm = T), evd$estimate)
-          hist(predict@data[,1],breaks=20, xlab=var, main="", col="grey")
-          
-          # Save summary info to summary table
-          summary_lake[var_number,1:14]<-summary_var
-          
+          evd$estimate
+          summary_lake[var_number,17:19]<-evd$estimate
+
+
           # Save spatial data to spatial object
           grid_withData@data[var_number]<-predict@data[1]
           
@@ -288,8 +298,11 @@ for (lake_day in filenames){
     
     # Add variable names to summary table
     summary_lake$CV<-summary_lake$sd/summary_lake$Mean
-    summary_lake$QuartileDispersion<-(summary_lake$Q3 - summary_lake$Q1)/ (summary_lake$Q3 + summary_lake$Q1)
+    summary_lake$QuartileDispersion<-(summary_lake$Q75 - summary_lake$Q25)/ (summary_lake$Q75 + summary_lake$Q25)
     summary_lake$MADMOverMedian<-(summary_lake$MADM)/ (summary_lake$Median)
+    summary_lake$MaxMinusMin<-(summary_lake$Max) - (summary_lake$Min)
+    summary_lake$IQR<-(summary_lake$Q75) - (summary_lake$Q25)
+    summary_lake$Q95MinusQ05<-(summary_lake$Q95) - (summary_lake$Q05)
     
     summary_lake$Variable<-variables
     
