@@ -5,6 +5,8 @@
 
 # Load packages
 library(gtools)
+library(lubridate)
+setwd("E:/Git_Repo/NHLDLakes")
 
 #### Merge all spatial summaries ####
 
@@ -27,7 +29,6 @@ for (summary_file in spatial_summaries){
   lakeday<-paste(lake, date, sep="_")
   
   summary<-read.csv(paste(data_dir, summary_file, sep="/"), header=T, stringsAsFactors = F)
-  summary$range<-summary$Max-summary$Min
   rownames(summary)<-summary$Variable
   transposed_summary<-as.data.frame(t(subset(summary, select = -c(Variable))))
   transposed_summary$Date<-as.Date(rep(date, nrow(transposed_summary)))
@@ -43,7 +44,6 @@ for (summary_file in spatial_summaries){
   }
   
   points<-read.csv(paste(point_dir, summary_file, sep="/"), header=T, stringsAsFactors = F)
-  points$range<-points$Max-points$Min
   rownames(points)<-points$Variable
   transposed_points<-as.data.frame(t(subset(points, select = -c(Variable))))
   transposed_points$Date<-as.Date(rep(date, nrow(transposed_points)))
