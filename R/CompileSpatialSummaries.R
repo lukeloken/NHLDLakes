@@ -14,6 +14,7 @@ data_dir<-"E:/Dropbox/FLAME_NHLDlakes/pixelsummaries"
 point_dir<-"E:/Dropbox/FLAME_NHLDlakes/pointsummaries"
 
 spatial_summaries<-list.files(data_dir)
+spatial_summaries<-spatial_summaries[which(spatial_summaries!="TenderfootCreek2016-09-05cleaned.csv")]
 point_summaries<-list.files(point_dir)
 
 merged_summary<-as.data.frame(matrix(nrow=0, ncol=0))
@@ -21,6 +22,7 @@ merged_points<-merged_summary
 
 summary_file<-spatial_summaries[1]
 for (summary_file in spatial_summaries){
+  
   
   str1<-sub("cleaned.csv", "", summary_file)
   date<-ymd(gsub("[A-z]", '', str1))
