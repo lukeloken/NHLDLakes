@@ -40,7 +40,7 @@ units[10]<-c(expression(paste('BGA (RFU)')))
 nu <- 1
 for (nu in 1:length(IQRstats)){
   
-  png(paste0("Figures/Hisotgramsof", IQRstats[nu], "Pixels.png"), res=200, width=4.5,height=10, units="in")
+  png(paste0("Figures/Histograms/Hisotgramsof", IQRstats[nu], "Pixels.png"), res=200, width=4.5,height=10, units="in")
   
   par(mfrow=c(5,2))
   par(mar=c(3,2,.5,.5), oma=c(.5,2,2,0))
@@ -65,7 +65,7 @@ for (nu in 1:length(IQRstats)){
 nu <- 1
 for (nu in 1:length(IQRstats)){
   
-  png(paste0("Figures/Hisotgramsof", IQRstats[nu], "Points.png"), res=200, width=4.5,height=10, units="in")
+  png(paste0("Figures/Histograms/Hisotgramsof", IQRstats[nu], "Points.png"), res=200, width=4.5,height=10, units="in")
   
   par(mfrow=c(5,2))
   par(mar=c(3,2,.5,.5), oma=c(.5,2,2,0))
