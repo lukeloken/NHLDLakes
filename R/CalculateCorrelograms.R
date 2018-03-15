@@ -241,4 +241,8 @@ setwd("E:/Dropbox/FLAME_NHLDLakes/")
 saveRDS(moran_ncf_alllakes, file='SpatialOutputs/moran_ncf_alllakes.rds')
 saveRDS(semivar_alllakes, file='SpatialOutputs/semivar_alllakes.rds')
 
+#Export Data to git
+setwd("E:/Git_Repo/NHLDLakes")
+saveRDS(moran_ncf_alllakes, file='Data/moran_ncf_alllakes.rds')
+saveRDS(semivar_alllakes, file='Data/semivar_alllakes.rds')
 
