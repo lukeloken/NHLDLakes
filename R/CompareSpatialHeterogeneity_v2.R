@@ -41,7 +41,7 @@ colorbyvar<-colors[c(1,1,1,1,2,2,2,2,3,3)]
 
 
 # Boxplots of spatial variability across variables using pixels
-png("Figures/CV_andothers_BoxplotsAmongVariablesPixels.png", res=200, width=4.5,height=12, units="in")
+png("Figures/Boxplots/CV_andothers_BoxplotsAmongVariablesPixels.png", res=200, width=4.5,height=12, units="in")
 par(mfrow=c(length(CVstats) ,1))
 par(mar=c(1.5,3,.5,.5), oma=c(2.5,1,2,0))
 par(mgp=c(2, .5, 0))
@@ -67,7 +67,7 @@ dev.off()
 
 
 # Boxplots of spatial variability across variables using points
-png("Figures/CV_andothers_BoxplotsAmongVariablesPoints.png", res=200, width=4.5,height=12, units="in")
+png("Figures/Boxplots/CV_andothers_BoxplotsAmongVariablesPoints.png", res=200, width=4.5,height=12, units="in")
 par(mfrow=c(length(CVstats),1))
 par(mar=c(1.5,3,.5,.5), oma=c(2.5,1,2,0))
 par(mgp=c(2, .5, 0))
@@ -92,7 +92,7 @@ dev.off()
 
 
 # Boxplots of semivariance ranges across variables using points
-png("Figures/SemiVarRanges_BoxplotsAmongVariablesPoints.png", res=200, width=5,height=3, units="in")
+png("Figures/Boxplots/SemiVarRanges_BoxplotsAmongVariablesPoints.png", res=200, width=5,height=3, units="in")
 par(mfrow=c(1,1))
 par(mar=c(1.5,2,.5,.5), oma=c(1,1,0,0))
 par(mgp=c(2, .3, 0), tck=-0.02)
@@ -110,7 +110,7 @@ mtext('Variable', 1, 0, outer=T)
 dev.off()
 
 # Boxplots of semivariance ranges across variables using points
-png("Figures/SemiVarRanges_BoxplotsAmongVariablesPointsNoLGR.png", res=200, width=4,height=2.5, units="in")
+png("Figures/Boxplots/SemiVarRanges_BoxplotsAmongVariablesPointsNoLGR.png", res=200, width=4,height=2.5, units="in")
 par(mfrow=c(1,1))
 par(mar=c(1.5,2,.5,.5), oma=c(1,1,0,0))
 par(mgp=c(2, .3, 0), tck=-0.02)
