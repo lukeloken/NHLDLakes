@@ -115,6 +115,8 @@ middlenames<-c('deep hole', 'Deep Hole', 'LTER float', 'Central Bay', 'LTER floa
 
 saveRDS(AllMerged, file='Data/NHLDLakes_WaterChemFLAME.rds')
 
+AllMiddle<-subset(AllMerged, Sample.Notes %in% middlenames)
+
 # Summarize by lake day
 
 lakes.waterchem = 
@@ -122,6 +124,7 @@ lakes.waterchem =
   group_by(LakeName) %>%
   dplyr::select(DOC, TotalNF, TotalNUF, TotalPF, TotalPUF, NH4, NO3NO2, SRP, Cl) %>%
   summarise(
+    n = n(),
     DOC_AVG = mean(DOC, na.rm=T),
     TotalNF_AVG = mean(TotalNF, na.rm=T),
     TotalNUF_AVG = mean(TotalNUF, na.rm=T),
@@ -143,6 +146,7 @@ lakes.waterchem.middle =
   group_by(LakeName) %>%
   dplyr::select(DOC, TotalNF, TotalNUF, TotalPF, TotalPUF, NH4, NO3NO2, SRP, Cl) %>%
   summarise(
+    n = n(),
     DOC_AVG = mean(DOC, na.rm=T),
     TotalNF_AVG = mean(TotalNF, na.rm=T),
     TotalNUF_AVG = mean(TotalNUF, na.rm=T),
