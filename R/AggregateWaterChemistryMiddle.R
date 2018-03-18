@@ -131,7 +131,7 @@ lakes_df<-merge(df, lakes.waterchem, by.x='lakes', by.y='LakeName', all=T)
 #Middle only using summarize all
 lakes.waterchem.flame.middle = 
   AllMerged %>%
-  filter(Sample.Notes %in% middlenames | LakeName %in% c('LauraLake', 'SpiderLake')) %>%
+  filter(Sample.Notes %in% middlenames | LakeName %in% c('MidgeLake', 'LauraLake', 'SpiderLake')) %>%
   group_by(LakeName) %>%
   dplyr::select(Latitude, Longitude, XCO2Dppm, XCH4Dppm, BGAPCRFU, BGAPCugL, TurbFNU, fDOMRFU, fDOMQSU, ODOsat, ODOmgL, pH, DOC, TotalNF, TotalNUF, TotalPF, TotalPUF, NH4, NO3NO2, SRP, Cl) %>%
   summarise_all(funs(mean), na.rm=T)
