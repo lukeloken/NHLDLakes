@@ -1,7 +1,7 @@
 # ############################################################################
 # Correlelogram modelling
 # Load all NHLD Flame data and evaluate spatial correlation
-# Luke Loken, Feb 2016
+# Luke Loken, Feb 2018
 
 rm(list = ls())
 
