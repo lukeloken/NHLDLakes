@@ -32,8 +32,10 @@ semivar_alllakes[which(semivar_alllakes[,c('range_best')]==Inf), c('range_best')
 
 names(semivar_alllakes)[c(9,10)]<-c('SemiRange', 'SemiCutoff')
 
+semivar_alllakes$SemiRangeOverCutoff <- semivar_alllakes$SemiRange/semivar_alllakes$SemiCutoff
+
 c <- semivar_alllakes %>%
-  dplyr::select(variable, Date, Lake, SemiRange, SemiCutoff) %>%
+  dplyr::select(variable, Date, Lake, SemiRange, SemiCutoff, SemiRangeOverCutoff) %>%
   filter(variable != 'NA') %>%
   gather(key=Statistic, value=value, -c(Lake, Date, variable))
 
