@@ -4,10 +4,8 @@ rm(list = ls())
 library(RColorBrewer)
 library(dplyr)
 library(tidyr)
-library(vioplot)
 library(ggplot2)
 library(scales)
-library(car)
 library(PerformanceAnalytics)
 
 # ########################################
