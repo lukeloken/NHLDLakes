@@ -162,20 +162,28 @@ for (lake_day in filenames){
         est_nugget<-v$gamma[1]
         
         #fit model to variogram
-        v.fit <- fit.variogram(v, vgm(est_sill=est_sill, c("Lin", "Sph"), est_range=est_range, nugget=est_nugget), fit.method = 2)
+        v.fit <- fit.variogram(v, vgm(est_sill=est_sill, c("Nug", "Lin", "Sph"), est_range=est_range, nugget=est_nugget), fit.method = 2)
         
         # v.fit <- fit.variogram(v, vgm(c('Lin')), fit.method = 1)
 
         #Ouput model information
-        model_type    <- as.character(v.fit[2,1])
+        model_type    <- as.character(tail(v.fit[,1],1))
+        
+        #Both of these become NA if nug model
         model_psill <- v.fit$psill[2]
         model_range <- v.fit$range[2]
+        
         model_nug <- v.fit$psill[1]
         model_nugrange <- v.fit$range[1]
-        range95 <- EffectiveRange(v.fit, window)
         range_best <- model_range
-        if (range95>=cutoff){range95 <- Inf}
-        if (range_best>=cutoff){range_best<-Inf}
+        
+        if(model_type != 'Nug'){
+          range95 <- EffectiveRange(v.fit, window)
+          if (range95>=cutoff){range95 <- Inf}
+          if (range_best>=cutoff){range_best<-Inf}
+        } else {range95 <- NA
+        range_best <- model_nugrange}
+        
         
         semivar[var_number,2:10] <- c(variable_names[var_number], model_type, model_psill, model_range, model_nug, model_nugrange, range95, range_best, cutoff)
         
