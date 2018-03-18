@@ -14,6 +14,8 @@ library(gridExtra)
 
 setwd("E:/Git_Repo/NHLDLakes")
 
+asinTransform <- function(p) { asin(sqrt(p)) }
+
 j <- readRDS(file='Data/FlameStatsLagosChemAllWide.rds')
 
 #Subset or select which columns to use...
@@ -29,6 +31,7 @@ SemiVars <- c('TmpC_h', 'SPCScm_h', 'fDOMRFU_h', 'TrbFNU_h', 'pH_h', 'ODOmgL_h',
 
 SemiRange_columns<-paste(SemiVars, 'points', 'SemiRange', sep='_')
 
+SemiRangeRatio_columns<-paste(SemiVars, 'points', 'SemiRangeOverCutoff', sep='_')
 
 # ##############
 # plotting
@@ -128,3 +131,134 @@ mtext('Variable', 1, 0, outer=T)
 dev.off()
 
 
+
+
+# Boxplots of semivariance range ratios across variables using points
+png("Figures/Boxplots/SemiVarRangeRatios_BoxplotsAmongVariablesPoints.png", res=200, width=5,height=3, units="in")
+par(mfrow=c(1,1))
+par(mar=c(1.5,2,.5,.5), oma=c(1,1,0,0))
+par(mgp=c(2, .3, 0), tck=-0.02)
+
+ylim<-c(0,1)
+
+boxplot(j[SemiRangeRatio_columns], ylim=ylim, ylab='', names=NA , boxwex=boxwex, col=colorbyvar, cex=0.5, pch=16, yaxt='n')
+axis(2, at=seq(0,1,0.5), cex.axis=.7, las=1)
+axis(1, labels=shortnames, at=1:length(shortnames), cex.axis=.7)
+mtext('Semivariance range ratio', 2, 1.5)
+abline(h=c(0,1), lty=3)
+
+mtext('Variable', 1, 0, outer=T)
+
+dev.off()
+
+# Boxplots of semivariance range ratios across variables using points
+png("Figures/Boxplots/SemiVarRangeRatios_BoxplotsAmongVariablesPointsNoLGR.png", res=200, width=4,height=2.5, units="in")
+par(mfrow=c(1,1))
+par(mar=c(1.5,2,.5,.5), oma=c(1,1,0,0))
+par(mgp=c(2, .3, 0), tck=-0.02)
+
+ylim<-c(0,1)
+
+boxplot(j[SemiRangeRatio_columns[-c(7:8)]], ylim=ylim, ylab='', names=NA , boxwex=boxwex, col=colorbyvar[-c(7:8)], cex=0.5, pch=16, yaxt='n')
+axis(2, at=seq(0,1,.5), cex.axis=.7, las=1)
+axis(1, labels=shortnames[-c(7:8)], at=1:length(shortnames[-c(7:8)]), cex.axis=.7)
+mtext('Semivariance range ratios', 2, 1.5)
+abline(h=c(0,1), lty=3)
+
+mtext('Variable', 1, 0, outer=T)
+
+dev.off()
+
+
+#With arcsin sqrt transform
+
+# Boxplots of semivariance range ratios across variables using points
+png("Figures/Boxplots/SemiVarRangeRatiosArcSinTran_BoxplotsAmongVariablesPoints.png", res=200, width=5,height=3, units="in")
+par(mfrow=c(1,1))
+par(mar=c(1.5,2,.5,.5), oma=c(1,1,0,0))
+par(mgp=c(2, .3, 0), tck=-0.02)
+
+ylim<-c(0,1)
+
+boxplot(asinTransform(j[SemiRangeRatio_columns]), ylab='', names=NA , boxwex=boxwex, col=colorbyvar, cex=0.5, pch=16, yaxt='n')
+axis(2, cex.axis=.7, las=1)
+axis(1, labels=shortnames, at=1:length(shortnames), cex.axis=.7)
+mtext('Semivariance range ratio', 2, 1.5)
+abline(h=c(0,pi/2), lty=3)
+
+mtext('Variable', 1, 0, outer=T)
+
+dev.off()
+
+
+# Boxplots of semivariance range ratios arcsin transform across variables using points
+png("Figures/Boxplots/SemiVarRangeRatiosArcSinTran_BoxplotsAmongVariablesPointsNoLGR.png", res=200, width=4,height=2.5, units="in")
+par(mfrow=c(1,1))
+par(mar=c(1.5,2,.5,.5), oma=c(1,1,0,0))
+par(mgp=c(2, .3, 0), tck=-0.02)
+
+ylim<-c(0,1)
+
+boxplot(asinTransform(j[SemiRangeRatio_columns[-c(7:8)]]), ylab='', names=NA , boxwex=boxwex, col=colorbyvar[-c(7:8)], cex=0.5, pch=16, yaxt='n')
+axis(2, cex.axis=.7, las=1)
+axis(1, labels=shortnames[-c(7:8)], at=1:length(shortnames[-c(7:8)]), cex.axis=.7)
+mtext('Arcsin(sqrt(Semivariance range ratios))', 2, 1.5)
+abline(h=c(0,pi/2), lty=3)
+
+mtext('Variable', 1, 0, outer=T)
+
+dev.off()
+
+
+# Convert data for violin plots
+vdata <- j %>% 
+  dplyr::select(SemiRangeRatio_columns) %>%
+  gather(key=variable, value=rangeratio)
+
+vdata$VariableShort <- shortnames[match(vdata$variable, SemiRangeRatio_columns)]
+vdata$VariableShort = factor(vdata$VariableShort, shortnames)
+
+
+# Violin plot semivariance range ratios variables using points
+png("Figures/Boxplots/SemiVarRangeRatios_ViolinplotsAmongVariablesPoints.png", res=200, width=4,height=2.5, units="in")
+par(mfrow=c(1,1))
+par(mar=c(1.5,2,.5,.5), oma=c(1,1,0,0))
+par(mgp=c(2, .3, 0), tck=-0.02)
+
+p1 <- ggplot(vdata, aes(x=VariableShort, y=rangeratio, fill=VariableShort, color=VariableShort)) +  
+  scale_y_continuous(limits = c(0, 1)) + 
+  labs(x = "", y='Semivariance range ratio') + 
+  geom_violin(alpha=0.2, na.rm=T) + 
+  # geom_boxplot(width=0.5, color='black', notch=T) + 
+  scale_fill_manual(values=colorbyvar) +
+  scale_color_manual(values=colorbyvar) +
+  geom_jitter(width=0.02, size=0.5, alpha=1) +
+  stat_summary(fun.y=median, geom="point", size=2, color='black', shape=18) +
+  theme_bw() + 
+  theme(legend.position="none")
+
+p1
+
+dev.off()
+
+# Violin plot semivariance range ratios variables using points no LGR
+png("Figures/Boxplots/SemiVarRangeRatios_ViolinplotsAmongVariablesPointsNoLGR.png", res=200, width=4,height=2.5, units="in")
+par(mfrow=c(1,1))
+par(mar=c(1.5,2,.5,.5), oma=c(1,1,0,0))
+par(mgp=c(2, .3, 0), tck=-0.02)
+
+p1 <- ggplot(vdata[-which(vdata$VariableShort %in% c('CO2', 'CH4')),], aes(x=VariableShort, y=rangeratio, fill=VariableShort, color=VariableShort)) +  
+  scale_y_continuous(limits = c(0, 1)) + 
+  labs(x = "", y='Semivariance range ratio') + 
+  geom_violin(alpha=0.2, na.rm=T) + 
+  # geom_boxplot(width=0.5, color='black', notch=T) + 
+  scale_fill_manual(values=colorbyvar[-c(7:8)]) +
+  scale_color_manual(values=colorbyvar[-c(7:8)]) +
+  geom_jitter(width=0.02, size=0.5, alpha=1) +
+  stat_summary(fun.y=median, geom="point", size=2, color='black', shape=18) +
+  theme_bw() + 
+  theme(legend.position="none")
+
+p1
+
+dev.off()
