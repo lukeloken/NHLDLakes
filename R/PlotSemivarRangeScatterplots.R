@@ -7,6 +7,7 @@ library(tidyr)
 library(ggplot2)
 library(scales)
 library(PerformanceAnalytics)
+library(car)
 
 # ########################################
 # Plot scatterplots of semivariance ranges for each variable/day
