@@ -7,6 +7,10 @@ e<-MyChemLagos[,c(1, 14:22, 57, 62:63, 78, 102:103, 105,191,192)]
 
 #Create additional metrics describing watershed/stream attributes compared to lake size
 e$iws_ha[e$Lake=='MidgeLake']<-10
+e$iws_streamdensity_streams_sum_lengthm[e$Lake=='MidgeLake']<-0
+e$iws_streamdensity_streams_density_mperha[e$Lake=='MidgeLake']<-0
+
+
 e$streamlength_to_lakearea<-e$iws_streamdensity_streams_sum_lengthm/e$lake_area_ha
 e$streamdensity_to_lakearea<-e$iws_streamdensity_streams_density_mperha/e$lake_area_ha
 
