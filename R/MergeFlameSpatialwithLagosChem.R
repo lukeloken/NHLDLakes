@@ -3,7 +3,7 @@
 MyChemLagos <- readRDS('Data/MyLakesLagosFlameChem.rds') 
 names(MyChemLagos)[1]<-'Lake'
 
-e<-MyChemLagos[,c(1, 14:22, 57, 62:63, 78, 102:103, 105)]
+e<-MyChemLagos[,c(1, 14:22, 57, 62:63, 78, 102:103, 105,191,192)]
 
 #Long Table (one row = one value), values are by lake, date, Geotype, variable, stat
 d<- readRDS(file='Data/FlameStatsAll.rds')
