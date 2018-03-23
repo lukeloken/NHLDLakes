@@ -35,3 +35,6 @@ source('R/CompareSpatialHeterogeneity_v2.R')
 
 #Histograms of maxminusmin and IQR across lakes and variables
 source('R/PlotHistRangeIQRAmongVariableTypes.R')
+
+#Scatterplots of semivariance ranges
+source('R/PlotSemivarRangeScatterplots.R')
