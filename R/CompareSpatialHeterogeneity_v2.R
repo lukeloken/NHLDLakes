@@ -237,7 +237,7 @@ p1 <- ggplot(vdata, aes(x=VariableShort, y=rangeratio, fill=VariableShort, color
   theme_bw() + 
   theme(legend.position="none")
 
-p1
+print(p1)
 
 dev.off()
 
@@ -259,6 +259,6 @@ p1 <- ggplot(vdata[-which(vdata$VariableShort %in% c('CO2', 'CH4')),], aes(x=Var
   theme_bw() + 
   theme(legend.position="none")
 
-p1
+print(p1)
 
 dev.off()
