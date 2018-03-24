@@ -3,7 +3,7 @@
 MyChemLagos <- readRDS('Data/MyLakesLagosFlameChem.rds') 
 names(MyChemLagos)[1]<-'Lake'
 
-e<-MyChemLagos[,c(1, 14:22, 57, 62:63, 78, 102:103, 105,191,192)]
+e<-MyChemLagos[,c(1, 14:22, 57, 62:63, 79, 75, 103, 105,191,192)]
 
 #Create additional metrics describing watershed/stream attributes compared to lake size
 e$iws_ha[e$Lake=='MidgeLake']<-10
