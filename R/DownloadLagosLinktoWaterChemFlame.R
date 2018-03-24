@@ -5,9 +5,12 @@ rm(list = ls())
 
 # library(devtools)
 # install_github('lawinslow/hydrolinks')
-# library(hydrolinks)
+library(hydrolinks)
 library(LAGOSNE)
 library(dplyr)
+library(sp)
+library(rgdal)
+library(raster)
 
 setwd("E:/Git_Repo/NHLDLakes")
 
@@ -20,21 +23,65 @@ nhdIDs<-read.csv('E:/Dropbox/FLAME_NHLDLakes/Lake Information/NHD_IDs.csv', head
 nhdIDs<-nhdIDs[nhdIDs$FlameName!='TurtleFlambeauFlowage',]
 LakeIDs<-nhdIDs$Permanent.Identifier
 
+mylakes<-readOGR("Data/GISData", "regional_lakes_6", verbose=F)
+mylakes<-spTransform(mylakes,  CRS("+init=epsg:4326"))
+
+lakeomits<-c('Camp Lake', 'Stone Lake', 'Fawn Lake', 'Turtle Flambeau Flowage', 'Big Lake', 'Averill Lake', 'Presque Isle Lake')
+mylakes<-mylakes[-which(mylakes$SHAIDNAME %in% lakeomits),]
+coords<-coordinates(mylakes)
+coords[which(mylakes$SHAIDNAME=='Tomahawk Lake'),] <- c(-89.67,45.83)
+coords[which(mylakes$SHAIDNAME=='Little St Germain Lake'),] <- c(-89.445,45.927)
+coords[which(mylakes$SHAIDNAME=='Day Lake'),] <- c(-89.7,46.063)
+
+waterbodyid<-link_to_waterbodies(lats=coords[,2], lons=coords[,1], ids=1:length(mylakes), dataset='nhdh')
+
+MissingLakerows<-setdiff( 1:length(mylakes), c(waterbodyid$MATCH_ID))
+print(as.character(mylakes$SHAIDNAME[MissingLakerows]))
+
+#Change Lake Tomahawk to Match lagos id
+waterbodyid$permanent_[which(waterbodyid$gnis_name=='Tomahawk Lake')]<-nhdIDs$Permanent.Identifier[which(nhdIDs$FlameName=='LakeTomahawk')]
+
+
+mylakedata<-mylakes@data
+
+#Manually include lakes by lat/long and give them a name
+#waterbodyid2<-link_to_waterbodies(c(45.83, 45.929, 46.063), c(-89.67, -89.44,-89.7), id=c('Tom', 'LSG', 'Day'))
+
+mylakedata$Permanent.Identifier<-NA
+mylakedata$Permanent.Identifier[waterbodyid$MATCH_ID]<-as.numeric(waterbodyid$permanent_)
+mylakedata$waterbodyname[waterbodyid$MATCH_ID]<-waterbodyid$gnis_name
+
+FullIds<-full_join(mylakedata, nhdIDs, by = "Permanent.Identifier")
+FullIds$SDI<-FullIds$PERIMETER/(2*sqrt(FullIds$AREA))
+dim(FullIds)
+# View(FullIds)
+
+
+
 #### LAGOS data using nhd ids ####
 
 # lagos_all<-lagosne_get("1.087.1")
 lagos<-lagosne_load("1.087.1")
 
+
 # Subset Lagos using IDs and change class of columns
-mylocus <- lagos$locus %>% filter(as.character(nhdid) %in% LakeIDs)
+# mylocus <- lagos$locus %>% filter(as.character(nhdid) %in% LakeIDs)
+mylocus <- lagos$locus %>% filter(as.character(nhdid) %in% FullIds$Permanent.Identifier)
 mylocus$nhdid<-as.character(mylocus$nhdid)
 mylocus$gnis_name<-as.character(mylocus$gnis_name)
 mylocus$flame_name<-nhdIDs[match(mylocus$nhdid,nhdIDs$Permanent.Identifier),2]
 
+# mylocus$ShorelineIndex <- mylocus$lake_perim_meters/(2*sqrt(mylocus$lake_area_ha*10000))
+
+#Replace area and perimeter with shapefile metrics and calculate shoreline development index
+mylocus$lake_area_ha <- FullIds$AREA[match(mylocus$nhdid,FullIds$Permanent.Identifier)]/10000
+mylocus$lake_perim_meters <- FullIds$PERIMETER[match(mylocus$nhdid,FullIds$Permanent.Identifier)]
+mylocus$ShorelineIndex <- FullIds$SDI[match(mylocus$nhdid,FullIds$Permanent.Identifier)]
+
 # Add additional tables to mylagos datatable
 mylagos <- left_join(mylocus, lagos$lakes_limno)
+mylagos$lagosname1 <- NA
 mylagos <- left_join(mylagos, lagos$lakes.geo)
-mylagos$ShorelineIndex <- mylagos$lake_perim_meters/(2*sqrt(mylagos$lake_area_ha*10000))
 
 mylagos <- left_join(mylagos, lagos$iws)
 mylagos <- left_join(mylagos, lagos$iws.conn)
