@@ -25,7 +25,7 @@ f<-as.data.frame(full_join(e,d))
 g <- f %>%
   filter(variable!='NA' | Statistic != 'NA')
 
-h <- g[which(!is.na(g$value) & g$Date>='2015-06-08' & g$Lake !='MidgeLake'),]
+h <- g[which(!is.na(g$value) & g$Date>='2015-06-08' & g$Lake !='MidgeLake' & g$Lake !='NewmanLake'),]
 
 i <- h %>% 
   unite(col, variable, GeoType, Statistic, sep='_') 
