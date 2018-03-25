@@ -1,9 +1,9 @@
 
 #Wide Table (one row = one lake)
 MyChemLagos <- readRDS('Data/MyLakesLagosFlameChem.rds') 
-names(MyChemLagos)[1]<-'Lake'
+names(MyChemLagos)[23]<-'Lake'
 
-e<-MyChemLagos[,c(1, 14:22, 57, 62:63, 79, 75, 103, 105,191,192)]
+e<-MyChemLagos[,c(23, 14:22, 57, 62:63, 79, 75, 103, 105,191,192)]
 
 #Create additional metrics describing watershed/stream attributes compared to lake size
 e$iws_ha[e$Lake=='MidgeLake']<-10
@@ -25,7 +25,7 @@ f<-as.data.frame(full_join(e,d))
 g <- f %>%
   filter(variable!='NA' | Statistic != 'NA')
 
-h <- g[which(!is.na(g$value) & g$Date!='2015-05-27'),]
+h <- g[which(!is.na(g$value) & g$Date>='2015-06-08'),]
 
 i <- h %>% 
   unite(col, variable, GeoType, Statistic, sep='_') 
