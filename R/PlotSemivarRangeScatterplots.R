@@ -77,7 +77,7 @@ par(mar=c(3,3,.5,.5))
 par(mgp=c(3,.5,0), tck=-0.02)
 lim=c(0,2100)
 
-column<-1
+column<-2
 for (column in c(2,1,3:10)){
   if (column ==2){
     
@@ -87,7 +87,7 @@ for (column in c(2,1,3:10)){
     mtext('Semivariance range other variables (m)', 2,2)
     legend('topleft', inset=0.01, shortnames[c(1,3:length(shortnames))], text.col=colorbyvar[c(1,3:length(colorbyvar))], bty='n', x.intersp=0)
   } else {
-    points(df_semi[,1], df_semi[,column], col=colorbyvar[column], pch=16, xlab='', ylab='', cex=0.8)
+    points(df_semi[,2], df_semi[,column], col=colorbyvar[column], pch=16, xlab='', ylab='', cex=0.8)
   }
 }
 dev.off()
