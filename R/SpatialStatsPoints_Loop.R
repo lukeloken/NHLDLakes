@@ -36,6 +36,11 @@ filenames<-filenames[-grep('TenderfootCreek', filenames)]
 # subset = 20; keep 1/20 of data
 # subset = 10
 
+# What is the spatial tollerance of points? 
+# Observations within this distance (m) are excluded. 
+# Only the first obseration is retained. 
+maxdist<-5
+
 # Set UTM projection (Wisconsin Transvere Mercator for Regional Lakes)
 projection = "+init=epsg:3071"
 # projection = "+proj=utm +zone=15 ellps=WGS84"
@@ -108,7 +113,7 @@ for (lake_day in filenames){
     names(summary_lake)<-c('Min', 'Q25', 'Median', 'Mean', 'Q75', 'Max', 'Q05', 'Q10', 'Q90', 'Q95', 'sd', 'SDL', 'n', 'mad', 'MADM', 'skewness', 'loc', 'scale', 'shape', 'CV', 'QuartileDispersion', 'MADMOverMedian')
     
     #Subset data so observations within 5 m of each other are removed. Mainly this gets rid of the duplicates generated when the boat is stationary. 
-    data2<-remove.duplicates(data, zero=5)
+    data2<-remove.duplicates(data, zero=maxdist)
     
     # ==========================================
     # Start of loop to run through each variable  
@@ -118,7 +123,7 @@ for (lake_day in filenames){
       var_number<-which(variables==var)
       
       #Identify column that contains variable
-      values<-data@data[,which(names(data)==var)]
+      values<-data2@data[,which(names(data2)==var)]
       values<-values[which(is.na(values)==F)]
       
       # Skip variable if all NAs
