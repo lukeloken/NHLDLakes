@@ -3,7 +3,7 @@
 # Load all NHLD Flame data and predict each variable across each lake
 # Export a Summary table and spatial objects of predictions
 # Use lake polygon and extent of data to inform prediction window and resolution
-# Luke Loken, Feb 2016
+# Luke Loken, Feb 2018
 # ===================================
 
 rm(list = ls())
@@ -32,12 +32,19 @@ filenames <- list.files(path = paste(getwd(), "/Data", sep=""))
 
 # subset filenames for new lakes
 filenames<-filenames[-grep('2014', filenames)]
+# filenames<-filenames[c(17,43,54)]
 
 # How much data to subset (data/subset)
 # subset = 1; keep all data
 # subset = 10: keep 1/10 of data
 # subset = 20; keep 1/20 of data
-subset = 10
+subset = 5
+
+# What is the spatial tollerance of point observations? 
+# Observations within this distance (m) are excluded. 
+# Only the first obseration is retained. 
+# Subsetting happens for each variable. 
+maxdist=5
 
 # Set UTM projection (Zone 15 for Northern Wisconsin Regional Lakes)
 
@@ -205,6 +212,9 @@ for (lake_day in filenames){
         
         #Transform data into UTM's. This way distance is in meters (m)
         data2<-spTransform(data2, CRS(projection))
+        
+        # Remove observations that are within maxdist (5m) of each other. 
+        data2<-remove.duplicates(data2, zero=maxdist)
         
         #Plot heat map atop lake base polygon
         # spplot(data2[var], cuts=99, colorkey=TRUE, sp.layout = list(lakes_Base['Lake_Name']) )
