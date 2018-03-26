@@ -13,7 +13,7 @@ small_nlcd<-get_nlcd(template=nhld, label='nhld')
 
 mylakes<-readOGR("Data/GISData", "regional_lakes_6", verbose=F)
 mylakes<-spTransform(mylakes,  crs(small_nlcd))
-mylakes<-mylakes[-which(mylakes$SHAIDNAME=='Turtle Flambeau Flowage'),]
+mylakes<-mylakes[-which(mylakes$SHAIDNAME %in% c('Turtle Flambeau Flowage', 'Stone Lake', 'Fawn Lake', 'Camp Lake', 'Big Lake', 'Round Lake', 'Papoose Lake', 'Averill Lake', 'Presque Isle Lake', 'Newman Lake', 'Unnamed')),]
 
 nhld<-readOGR("Data/GISData", "nhld_boundary", verbose=F)
 nhld<-spTransform(nhld,  crs(small_nlcd))
@@ -28,8 +28,8 @@ UP_Poly<-MI@polygons[[1]]@Polygons[[6]]
 UP_Poly2<-Polygons(list(UP_Poly), "s1")
 UP<-SpatialPolygons(list(UP_Poly2), proj4string=crs(MI))
 
-plot(small_nlcd)
-plot(nhld, add=T, col=NA, border='magenta', lwd=3)
+# plot(small_nlcd)
+# plot(nhld, add=T, col=NA, border='magenta', lwd=3)
 
 #mask raster by nhld polygon
 nlcd_masked <- mask(small_nlcd, nhld, inverse=F)
@@ -54,8 +54,8 @@ nlcd_masked@legend@colortable[81:82+1]<-short_colors[5]
 nlcd_masked@legend@colortable[c(90,95)+1]<-short_colors[2]
 
 
-plot(nlcd_masked)
-plot(nhld, add=T, col=NA, border='black', lwd=3)
+# plot(nlcd_masked)
+# plot(nhld, add=T, col=NA, border='black', lwd=3)
 
 
 #Make legend for plotting
@@ -97,9 +97,10 @@ perOther = 1-c(water+forest+wetland)/total
 #Map of NHLD lakes with Wisconsin inset
 png("Figures/NHLDmap.png", res=200, width=6.5,height=5, units="in")
 
+par(mfrow=c(1,1))
 par(mar=c(1,1,1,1))
 par(mgp=c(3,.5,0), tck=0)
-lakecolor<-'navy'
+lakecolor<-'mediumpurple4'
 
 plot(nhld, col=NA, border='black', lwd=4)
 plot(WI, add=T, lwd=2, lty=1)
