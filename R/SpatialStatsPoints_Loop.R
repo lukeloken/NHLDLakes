@@ -28,6 +28,7 @@ filenames <- list.files(path = paste(getwd(), "/Data", sep=""))
 # subset filenames for new lakes
 filenames<-filenames[-grep('2014', filenames)]
 filenames<-filenames[-grep('TenderfootCreek', filenames)]
+# filenames<-filenames[c(17,43,54)]
 
 # How much data to subset (data/subset)
 # subset = 1; keep all data
@@ -53,7 +54,7 @@ lakes_Base<-spTransform(lakes_Base_UTM, CRS(projection))
 polygonmatch<-c(rep(NA, length(filenames)))
 
 # Start loop for each filename
-lake_day=filenames[1]
+lake_day=filenames[7]
 for (lake_day in filenames){
   day_number<-which(filenames==lake_day )
   setwd(paste(getwd(),'/Data/', lake_day, sep=""))
@@ -105,6 +106,9 @@ for (lake_day in filenames){
     # This will be populated with summary stats for each variable
     summary_lake<-as.data.frame(matrix(nrow=length(variables), ncol=22))
     names(summary_lake)<-c('Min', 'Q25', 'Median', 'Mean', 'Q75', 'Max', 'Q05', 'Q10', 'Q90', 'Q95', 'sd', 'SDL', 'n', 'mad', 'MADM', 'skewness', 'loc', 'scale', 'shape', 'CV', 'QuartileDispersion', 'MADMOverMedian')
+    
+    #Subset data so observations within 5 m of each other are removed. Mainly this gets rid of the duplicates generated when the boat is stationary. 
+    data2<-remove.duplicates(data, zero=5)
     
     # ==========================================
     # Start of loop to run through each variable  
