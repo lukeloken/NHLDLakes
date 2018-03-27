@@ -5,15 +5,16 @@ names(MyChemLagos)[23]<-'Lake'
 
 e<-MyChemLagos[,c(23, 14:22, 57, 62:63, 79, 75, 103, 105,191,192)]
 
-#Create additional metrics describing watershed/stream attributes compared to lake size
+#Fill in missing or eroneous lagos data
+e$lakeconnection[e$Lake=='BallardLake']<-'DR_LakeStream'
+
 e$iws_ha[e$Lake=='MidgeLake']<-10
 e$iws_streamdensity_streams_sum_lengthm[e$Lake=='MidgeLake']<-0
 e$iws_streamdensity_streams_density_mperha[e$Lake=='MidgeLake']<-0
 
-
+#Create additional metrics describing watershed/stream attributes compared to lake size
 e$streamlength_to_lakearea<-e$iws_streamdensity_streams_sum_lengthm/e$lake_area_ha
 e$streamdensity_to_lakearea<-e$iws_streamdensity_streams_density_mperha/e$lake_area_ha
-
 e$iwsarea_to_lakearea <- e$iws_ha/e$lake_area_ha
 
 
