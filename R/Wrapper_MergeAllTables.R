@@ -29,6 +29,8 @@ source('R/MergeFlameSpatialwithLagosChem.R')
 
 
 ############# Plotting ####
+# Map Figure (This takes some time due to masking nlc raster)
+# source('PlotLandCoverNHLD.R')
 
 #Plot boxplots of spatial heterogeneity among variable types
 source('R/CompareSpatialHeterogeneity_v2.R')
@@ -38,4 +40,8 @@ source('R/PlotHistRangeIQRAmongVariableTypes.R')
 
 #Scatterplots of semivariance ranges
 source('R/PlotSemivarRangeScatterplots.R')
+
+#PCA analysis of predictor variables
+source('R/PCAanalysis.R')
+
 
