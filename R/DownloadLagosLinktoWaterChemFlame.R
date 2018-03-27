@@ -52,7 +52,7 @@ mylakedata$Permanent.Identifier[waterbodyid$MATCH_ID]<-as.numeric(waterbodyid$pe
 mylakedata$waterbodyname[waterbodyid$MATCH_ID]<-waterbodyid$gnis_name
 
 FullIds<-full_join(mylakedata, nhdIDs, by = "Permanent.Identifier")
-FullIds$SDI<-FullIds$PERIMETER/(2*sqrt(FullIds$AREA))
+FullIds$SDI<-FullIds$PERIMETER/(2*sqrt(pi*FullIds$AREA))
 dim(FullIds)
 # View(FullIds)
 
