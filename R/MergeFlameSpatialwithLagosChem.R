@@ -3,6 +3,11 @@
 MyChemLagos <- readRDS('Data/MyLakesLagosFlameChem.rds') 
 names(MyChemLagos)[23]<-'Lake'
 
+#For lakes without LTER water chemistry use lagos median
+MyChemLagos$DOC[which(is.na(MyChemLagos$DOC))]<-MyChemLagos$doc_median[which(is.na(MyChemLagos$DOC))]
+MyChemLagos$TotalPUF[which(is.na(MyChemLagos$TotalPUF))]<-MyChemLagos$tp_median[which(is.na(MyChemLagos$TotalPUF))]
+
+
 e<-MyChemLagos[,c(23, 14:22, 57, 62:63, 79, 75, 103, 105,191,192)]
 
 #Fill in missing or eroneous lagos data
