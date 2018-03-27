@@ -20,7 +20,8 @@ SemiVars <- c('TmpC_h', 'SPCScm_h', 'fDOMRFU_h', 'TrbFNU_h', 'pH_h', 'ODOmgL_h',
 SemiRange_columns<-paste(SemiVars, 'points', 'SemiRange', sep='_')
 
 # ##### End code to delete later
-IQRstats <- c('MaxMinusMin', 'Q95MinusQ05', 'IQR')
+IQRstats <- c('MaxMinusMin', 'Q95MinusQ05', 'IQR', 'sd', 'mad')
+
 
 # Make a vector of axis labels with units
 units<-c()
@@ -40,10 +41,10 @@ units[10]<-c(expression(paste('BGA (RFU)')))
 nu <- 1
 for (nu in 1:length(IQRstats)){
   
-  png(paste0("Figures/Histograms/Hisotgramsof", IQRstats[nu], "Pixels.png"), res=200, width=4.5,height=10, units="in")
+  png(paste0("Figures/Histograms/Hisotgramsof_", IQRstats[nu], "_Pixels.png"), res=200, width=4.5,height=10, units="in")
   
   par(mfrow=c(5,2))
-  par(mar=c(3,2,.5,.5), oma=c(.5,2,2,0))
+  par(mar=c(3.25,2,.5,.5), oma=c(.5,2,2,0))
   par(mgp=c(2, .5, 0))
   
   var <- 1
@@ -51,7 +52,7 @@ for (nu in 1:length(IQRstats)){
     values<-j[paste(goodvars_pixels[var], IQRstats[nu], sep="_")]
     hist(values[,1], main='', xlab='', ylab='', col='lightgrey', breaks=10)
     
-    mtext(units[var], 1, 2)
+    mtext(units[var], 1, 2.25)
     box(which='plot')
     
   }
@@ -65,10 +66,10 @@ for (nu in 1:length(IQRstats)){
 nu <- 1
 for (nu in 1:length(IQRstats)){
   
-  png(paste0("Figures/Histograms/Hisotgramsof", IQRstats[nu], "Points.png"), res=200, width=4.5,height=10, units="in")
+  png(paste0("Figures/Histograms/Hisotgramsof_", IQRstats[nu], "_Points.png"), res=200, width=4.5,height=10, units="in")
   
   par(mfrow=c(5,2))
-  par(mar=c(3,2,.5,.5), oma=c(.5,2,2,0))
+  par(mar=c(3.25,2,.5,.5), oma=c(.5,2,2,0))
   par(mgp=c(2, .5, 0))
   
   var <- 1
@@ -76,7 +77,7 @@ for (nu in 1:length(IQRstats)){
     values<-j[paste(goodvars_points[var], IQRstats[nu], sep="_")]
     hist(values[,1], main='', xlab='', ylab='', col='lightgrey', breaks=10)
     
-    mtext(units[var], 1, 2)
+    mtext(units[var], 1, 2.25)
     box(which='plot')
     
   }
