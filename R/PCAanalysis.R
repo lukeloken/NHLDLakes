@@ -7,6 +7,7 @@ library(viridis)
 library(ggplot2)
 library(ggfortify)
 library(gridExtra)
+library(corrplot)
 
 j <- readRDS(file='Data/FlameStatsLagosChemAllWide.rds')
 
