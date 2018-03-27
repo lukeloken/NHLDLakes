@@ -115,7 +115,6 @@ saveRDS(mylagos2, file='Data/MyLakesLagos.rds')
 # Merge lagos to LTER water chemistry
 
 MyChemLagos <- full_join(ChemData, mylagos2)
-names(MyChemLagos)[1:40]
 
 saveRDS(MyChemLagos, file='Data/MyLakesLagosFlameChem.rds')
 
