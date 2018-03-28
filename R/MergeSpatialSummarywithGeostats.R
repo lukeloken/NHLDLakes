@@ -28,6 +28,7 @@ head(b)
 # moran_ncf_alllakes <- readRDS( file='Data/moran_ncf_alllakes.rds')
 semivar_alllakes <- readRDS(file='Data/semivar_alllakes.rds')
 head(semivar_alllakes)
+semivar_alllakes$range_best[semivar_alllakes$model_type=='Nug']<-NA
 semivar_alllakes[which(semivar_alllakes[,c('range_best')]==Inf), c('range_best')]<-semivar_alllakes[which(semivar_alllakes[,c('range_best')]==Inf), c('cutoff')]
 
 names(semivar_alllakes)[c(9,10)]<-c('SemiRange', 'SemiCutoff')
