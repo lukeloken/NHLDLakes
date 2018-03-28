@@ -31,7 +31,7 @@ df$lakeconn_n <- match(df$lakeconn_f, levels(df$lakeconn_f))
 
 df_short <- df[which(!is.na(df$lakeconn_f)),]
 
-df_short2<- df_short[sample(nrow(df_short), min(nrow(df_short), 1000)), ]
+df_short2<- df_short[sample(nrow(df_short), min(nrow(df_short), 10000)), ]
 
 #Vectors of column names and shortnames
 goodvars<-c("TempC", "SPCuScm", "fDOMRFU", "TurbFNU", "pH", "ODOmgL",  "CO2uM", "CH4uM", "ChlARFU", "BGAPCRFU")
@@ -118,18 +118,18 @@ df_lmer$Variable <-factor(df_lmer$Variable, Vars)
 df_lmer$VarShort <- factor(shortnames[match(df_lmer$Variable, Vars)], shortnames)
 
 #Figure of percent variance within vs across lakes
-png("Figures/VariancePartion3Level.png", width=5,height=3, units="in", res=400)
+png("Figures/VariancePartion3Level.png", width=4.5,height=3, units="in", res=400)
 
 par(mfrow=c(1,1))
-par(mar=c(2.5,3,1,1))
+par(mar=c(2,3,1,1))
 par(mgp=c(3,.5,0), tck=-0.02)
 
 varbar<-ggplot(df_lmer[c(1,4,7)], aes(x=VarShort, y=vcov, fill=grp)) + 
-  geom_bar(position = "fill",stat = "identity") +
+  geom_bar(position = "fill",stat = "identity", colour='black', width=0.85, size=0.5) +
   labs(y='Variance explained (%)', x='Variable')  +
   scale_fill_manual("", values = c("grey75", "grey45",  "grey10"), labels=c("Among landscape positions", "Among lakes", "Within lakes")) + 
   theme_bw() + 
-  theme(legend.position="bottom") + 
+  theme(legend.position=c("bottom"), panel.border = element_rect(colour = "black", fill=NA, size=.5)) + 
   scale_y_continuous(labels = seq(0,100,25), breaks=seq(0,1,.25), expand=c(0,0)) 
 
 print(varbar)
