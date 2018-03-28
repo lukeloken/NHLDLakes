@@ -218,6 +218,13 @@ vdata <- j %>%
 vdata$VariableShort <- shortnames[match(vdata$variable, SemiRangeRatio_columns)]
 vdata$VariableShort = factor(vdata$VariableShort, shortnames)
 
+rdata <- j %>% 
+  dplyr::select(SemiRange_columns) %>%
+  gather(key=variable, value=semivarrange)
+
+rdata$VariableShort <- shortnames[match(rdata$variable, SemiRange_columns)]
+rdata$VariableShort = factor(rdata$VariableShort, shortnames)
+
 
 # Violin plot semivariance range ratios variables using points
 png("Figures/Boxplots/SemiVarRangeRatios_ViolinplotsAmongVariablesPoints.png", res=200, width=4,height=2.5, units="in")
@@ -228,12 +235,12 @@ par(mgp=c(2, .3, 0), tck=-0.02)
 p1 <- ggplot(vdata, aes(x=VariableShort, y=rangeratio, fill=VariableShort, color=VariableShort)) +  
   scale_y_continuous(limits = c(0, 1)) + 
   labs(x = "", y='Semivariance range ratio') + 
-  geom_violin(alpha=0.2, na.rm=T) + 
+  geom_violin(alpha=0.15, na.rm=T) + 
   # geom_boxplot(width=0.5, color='black', notch=T) + 
   scale_fill_manual(values=colorbyvar) +
   scale_color_manual(values=colorbyvar) +
-  geom_jitter(width=0.02, size=0.5, alpha=1) +
-  stat_summary(fun.y=median, geom="point", size=2, color='black', shape=18) +
+  geom_jitter(width=0.1, size=0.5, alpha=1) +
+  stat_summary(fun.y=median, geom="point", size=3, color='black', shape=18) +
   theme_bw() + 
   theme(legend.position="none")
 
@@ -250,12 +257,34 @@ par(mgp=c(2, .3, 0), tck=-0.02)
 p1 <- ggplot(vdata[-which(vdata$VariableShort %in% c('CO2', 'CH4')),], aes(x=VariableShort, y=rangeratio, fill=VariableShort, color=VariableShort)) +  
   scale_y_continuous(limits = c(0, 1)) + 
   labs(x = "", y='Semivariance range ratio') + 
-  geom_violin(alpha=0.2, na.rm=T) + 
+  geom_violin(alpha=0.15, na.rm=T) + 
   # geom_boxplot(width=0.5, color='black', notch=T) + 
   scale_fill_manual(values=colorbyvar[-c(7:8)]) +
   scale_color_manual(values=colorbyvar[-c(7:8)]) +
-  geom_jitter(width=0.02, size=0.5, alpha=1) +
-  stat_summary(fun.y=median, geom="point", size=2, color='black', shape=18) +
+  geom_jitter(width=0.1, size=0.5, alpha=1) +
+  stat_summary(fun.y=median, geom="point", size=3, color='black', shape=18) +
+  theme_bw() + 
+  theme(legend.position="none")
+
+print(p1)
+
+dev.off()
+
+# Violin plot semivariance range ratios variables using points no LGR
+png("Figures/Boxplots/SemiVarRange_ViolinplotsAmongVariablesPointsNoLGR.png", res=200, width=4,height=2.5, units="in")
+par(mfrow=c(1,1))
+par(mar=c(1.5,2,.5,.5), oma=c(1,1,0,0))
+par(mgp=c(2, .3, 0), tck=-0.02)
+
+p1 <- ggplot(rdata[-which(rdata$VariableShort %in% c('CO2', 'CH4')),], aes(x=VariableShort, y=semivarrange, fill=VariableShort, color=VariableShort)) +  
+  scale_y_continuous(limits=c(0,2000)) + 
+  labs(x = "", y='Semivariance range (m)') + 
+  geom_violin(alpha=0.15, na.rm=T, trim=F) + 
+  # geom_boxplot(width=0.5, color='black', notch=T) + 
+  scale_fill_manual(values=colorbyvar[-c(7:8)]) +
+  scale_color_manual(values=colorbyvar[-c(7:8)]) +
+  geom_jitter(width=0.1, size=0.5, alpha=1) +
+  stat_summary(fun.y=median, geom="point", size=3, color='black', shape=18) +
   theme_bw() + 
   theme(legend.position="none")
 
