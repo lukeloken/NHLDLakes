@@ -1,5 +1,5 @@
 # ###########################################
-# Code to make lots of carbon plots on lake Mendota 2016
+# Code to produce across lake summaries of medians
 # ##########################################
 library(lubridate)
 library(stringr)
@@ -9,84 +9,54 @@ library(tidyr)
 setwd("E:/Git_Repo/NHLDLakes")
 source('R/AddAlpha.R')
 
+j <- readRDS(file='Data/FlameStatsLagosChemAllWide.rds')
+
 #Get Lagos data
-mylagos2<-readRDS(file='Data/MyLakesLagos.rds')
-lagosvars<-c("lake_area_ha", "lake_perim_meters", "meandepth", "maxdepth", "iws_ha", "iws_perimkm", "iws_lakeareaha", "ShorelineIndex")
+# mylagos2<-readRDS(file='Data/MyLakesLagos.rds')
+morphvars<-c("lake_area_ha", "lake_perim_meters", "ShorelineIndex", "maxdepth", "iws_ha", "iws_streamdensity_streams_sum_lengthm")
+morphnames<-c('Lake area', 'Lake perimeter', 'Shoreline Index', 'Max depth', 'Watershed area', 'Total stream length')
 
-lagos_subset <- mylagos2 %>%
-  dplyr::select(lagosvars)
+chemvars<-c('TotalPUF', "TotalNUF", "SRP", "NO3NO2", "NH4", 'DOC', 'Cl')
+chemnames<-c('Total P', 'Total N', 'SRP', 'NO3-N', 'NH4-N', 'DOC', 'CL')
 
-mean_lagos <- lagos_subset %>%
-  summarize_all(mean, na.rm=T)
+goodvars<-c("TempC", "SPCuScm", "fDOMRFU", "TurbFNU", "pH", "ODOmgL",  "CO2uM", "CH4uM", "ChlARFU", "BGAPCRFU")
+shortnames<-c("Temp", "SPC", "fDOM", "Turb", "pH", "DO", "CO2", "CH4", "ChlA", "BGA")
 
-median_lagos <- lagos_subset %>%
-  summarize_all(median, na.rm=T)
+goodvars_points<-paste(goodvars, 'points', sep='_')
 
-min_lagos <- lagos_subset %>%
-  summarize_all(min, na.rm=T)
+flamevars<-paste(goodvars, 'pixels', 'Median', sep='_')
 
-max_lagos <- lagos_subset %>%
-  summarize_all(max, na.rm=T)
+table_subset <- j %>%
+  group_by(Lake) %>%
+  dplyr::summarize_at(c(morphvars, chemvars, flamevars), median, na.rm=T)
 
-Statistic<-c('Median', 'Mean', 'Min', 'Max')
-lagos_summary<-data.frame(Statistic, as.data.frame(rbind(median_lagos, mean_lagos, min_lagos, max_lagos)))
-lagos_summary
+mins<- table_subset %>%
+  dplyr::summarize_at(c(morphvars, chemvars, flamevars), min, na.rm=T)
 
-# Get table of spatial summaries for all flame runs
-merged_summary<-readRDS('Data/FlameSpatialSummaries.rds')
-merged_points<-readRDS('Data/FlamePointsSummaries.rds')
-vars<-names(merged_summary)
-orderedvars<-c("TempC_t", "SPCScm_t",  "TrbFNU_t", "fDOMRFU_t",  "pH_tau", "ODOmgL_t", "ChlARFU_t", "ChlAgL_t", "BGAPCRFU_t", "BGAPCgL_t", "CO2uM_t", "CH4uM_t", "NITRATEM", "ABS254", "ABS350")
-goodvars <- vars[which(vars %in% orderedvars)]
+maxs<- table_subset %>%
+  dplyr::summarize_at(c(morphvars, chemvars, flamevars), max, na.rm=T)
+
+medians<- table_subset %>%
+  dplyr::summarize_at(c(morphvars, chemvars, flamevars), median, na.rm=T)
+
+means<- table_subset %>%
+  dplyr::summarize_at(c(morphvars, chemvars, flamevars), mean, na.rm=T)
+
+table_bound <- bind_rows(medians, means, mins, maxs)
+table_bound$lake_perim_meters<-table_bound$lake_perim_meters/1000
+table_bound$iws_streamdensity_streams_sum_lengthm<-table_bound$iws_streamdensity_streams_sum_lengthm/1000
+names(table_bound)<-c(morphnames, chemnames, shortnames)
+
+table_out<-as.data.frame(t(table_bound))
+names(table_out)<-c('Median', 'Mean', 'Min', 'Max')
+table_out$Variable<-row.names(table_out)
+row.names(table_out)<-NULL
+
+table_out[,1:4]<-apply(table_out[,1:4], 2, round, digits=2)
+table_out<-table_out[,c(5,1:4)]
 
 
-mean_table <- merged_summary %>%
-  filter(Statistic == 'Mean') %>%
-  summarize_at(goodvars, mean, na.rm=T)
+write.table(table_out, file='Data/AcrossLakeSummary.csv', row.names=F, sep=',')
+saveRDS(table_out, file='Data/AcrossLakeSummary.rds')
 
-median_table <- merged_summary %>%
-  filter(Statistic == 'Median') %>%
-  summarize_at(goodvars, median, na.rm=T)
 
-min_table <- merged_summary %>%
-  filter(Statistic == 'Mean') %>%
-  summarize_at(goodvars, min, na.rm=T)
-
-max_table <- merged_summary %>%
-  filter(Statistic == 'Mean') %>%
-  summarize_at(goodvars, max, na.rm=T)
-
-range_mean <- merged_summary %>%
-  filter(Statistic == 'range') %>%
-  summarize_at(goodvars, mean, na.rm=T)
-
-range_points_mean <- merged_points %>%
-  filter(Statistic == 'range') %>%
-  summarize_at(goodvars, mean, na.rm=T)
-
-range_median <- merged_summary %>%
-  filter(Statistic == 'range') %>%
-  summarize_at(goodvars, median, na.rm=T)
-
-range_min <- merged_summary %>%
-  filter(Statistic == 'range') %>%
-  summarize_at(goodvars, min, na.rm=T)
-
-range_max <- merged_summary %>%
-  filter(Statistic == 'range') %>%
-  summarize_at(goodvars, max, na.rm=T)
-
-chem_summary<-data.frame(Statistic, as.data.frame(rbind(median_table, mean_table, min_table, max_table)))
-
-chem_summary<-chem_summary[,c('Statistic', orderedvars)]
-chem_summary
-
-chemlagos_summary<-left_join(chem_summary, lagos_summary, all=T)
-
-t_summary<-data.frame(Variable=names(chemlagos_summary)[-1], as.data.frame(t(chemlagos_summary[,-1])))
-names(t_summary)<-c('Variable', Statistic)
-rownames(t_summary) <- c()
-t_summary[,2:5]<-apply(t_summary[,2:5], 2, signif, digits=4)
-
-write.table(t_summary, file='Data/AcrossLakeSummary.csv', row.names=F, sep=',')
-saveRDS(t_summary, file='Data/AcrossLakeSummary.rds')
