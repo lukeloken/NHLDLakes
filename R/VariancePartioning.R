@@ -30,8 +30,9 @@ df$lakeconn_f<-factor(j$lakeconn[match(df$Lake,j$Lake)], c('Isolated', 'Headwate
 df$lakeconn_n <- match(df$lakeconn_f, levels(df$lakeconn_f))
 
 df_short <- df[which(!is.na(df$lakeconn_f)),]
+df_short2<-df_short
 
-df_short2<- df_short[sample(nrow(df_short), min(nrow(df_short), 10000)), ]
+# df_short2<- df_short[sample(nrow(df_short), min(nrow(df_short), 80000)), ]
 
 #Vectors of column names and shortnames
 goodvars<-c("TempC", "SPCuScm", "fDOMRFU", "TurbFNU", "pH", "ODOmgL",  "CO2uM", "CH4uM", "ChlARFU", "BGAPCRFU")
@@ -93,7 +94,6 @@ dev.off()
 
 # ###############################################
 # Multiple level model. Include landscape position as a source of variance. 
-
 
 
 model.var <- function(var, data) {
