@@ -168,10 +168,43 @@ glm2lm<-function(glm){
   return(lm)
 }
 
+
+glmplot<-function (glm, ...){
+  y_obs<-glm[[1]]$model[,1]
+  y_pred<-predict(glm$BestModel, glm[[1]]$model)
+  plotlim<-range(c(y_obs, y_pred), na.rm=T)
+  plot(y_obs, y_pred, xlim=plotlim, ylim=plotlim,...)
+}
+
+
 lmlist<-lapply(glmlist, glm2lm)
 
 lapply(lmlist, function(l) summary(l))
 lapply(lmlist, function(l) anova(l))
+
+
+png(paste0("Figures/GLMModel/GLM_sd.png"), res=200, width=4.5,height=10, units="in")
+
+par(mar=c(2,2,.5,.5), oma=c(1.5,1.5,1.5,0))
+par(mgp=c(2, .5, 0))
+par(mfrow=c(5,2))
+for (model in 1:length(glmlist)){
+  
+glmplot(glmlist[[model]], pch=1, ylab='', xlab='')
+abline(0,1, lty=2)
+r2<-round(summary(lmlist[[model]])$adj.r.squared,2)
+
+legend('top', inset=0.01, c(shortnames[model]), bty='n')
+legend('bottomright', inset=0.01, c(paste0('r2=', (r2))), bty='n')
+
+}
+mtext('Predicted standard deviation', 2, 0, outer=T)
+mtext('Observed standard deviation', 1, 0, outer=T)
+mtext('Best GLM for predicting within lake standard deviation', 3, 0, outer=T)
+
+
+dev.off()
+
 
 
 # Coefs<-lapply(glmlist, function(l) l[[1]]['coefficients'][[1]])
