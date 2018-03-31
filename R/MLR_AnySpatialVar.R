@@ -352,33 +352,35 @@ grid.arrange(RFplotslog[[1]], RFplotslog[[2]], RFplotslog[[3]],RFplotslog[[4]],R
 
 dev.off()
 
+
+
 #### Boxplots of spatial stat by lake connection ####
 if (VarStat %in% c('SemiRange', 'SemiRangeOverCutoff')==FALSE){
-png(paste0("Figures/Boxplots/", VarStat, "_lakeconnection_points.png"), res=200, width=4.5,height=10, units="in")
-
-par(mfrow=c(5,2))
-par(mar=c(1.5,2,1.5,.5), oma=c(1.5,2,1,0))
-par(mgp=c(2, .5, 0))
-
-var_nu<-1
-for (var_nu in 1:length(sd_columns)){
-y<-k_full[,sd_columns[var_nu]]
-
-boxplot(y ~ k_full$lakeconn, col=viridis(4), boxwex=0.5)
-legend('top', inset=0, shortnames[var_nu], bty='n', xjust=0.5, x.intersp=0)
-}
-mtext('Lake Connection', 1,0,outer=T)
-mtext(paste0('Within-lake ', VarStat), 2,0,outer=T)
-mtext('Points', 3,-1,outer=T)
-
-dev.off()
+  png(paste0("Figures/Boxplots/", VarStat, "_lakeconnection_points.png"), res=200, width=4.5,height=10, units="in")
+  
+  par(mfrow=c(5,2))
+  par(mar=c(1.5,2,.5,.5), oma=c(1.5,2,1.5,0))
+  par(mgp=c(2, .3, 0), tck=-0.02)
+  
+  var_nu<-1
+  for (var_nu in 1:length(sd_columns)){
+    y<-k_full[,sd_columns[var_nu]]
+    
+    boxplot(y ~ k_full$lakeconn, col=viridis(4), boxwex=0.5)
+    legend('top', inset=0, shortnames[var_nu], bty='n', xjust=0.5, x.intersp=0)
+  }
+  mtext('Lake Connection', 1,0,outer=T)
+  mtext(paste0('Within-lake ', VarStat), 2,0,outer=T)
+  mtext('Points', 3,-.25,outer=T)
+  
+  dev.off()
 }
 
 png(paste0("Figures/Boxplots/", VarStat, "_lakeconnection_pixels.png"), res=200, width=4.5,height=10, units="in")
 
 par(mfrow=c(5,2))
-par(mar=c(1.5,2,1.5,.5), oma=c(1.5,2,1,0))
-par(mgp=c(2, .5, 0))
+par(mar=c(1.5,2,.5,.5), oma=c(1.5,2,1.5,0))
+par(mgp=c(2, .3, 0), tck=-0.02)
 
 var_nu<-1
 for (var_nu in 1:length(sd_columns_pix)){
@@ -389,12 +391,13 @@ for (var_nu in 1:length(sd_columns_pix)){
 }
 mtext('Lake Connection', 1,0,outer=T)
 mtext(paste0('Within-lake ', VarStat), 2,0,outer=T)
-mtext('Pixels', 3,-1,outer=T)
+mtext('Pixels', 3,-.25,outer=T)
 
 dev.off()
 
 
-# Loop through all predictor vars and plot scatterplot of within lake sd of each variable
+# Scatterplots of predictor vars vs all response vars. ####
+# Loop through all predictor vars and plot scatterplot of within lake sd
 xvars<-c(predvars,flamepredvars)
 for (xvar in 1:length(xvars)){
   
@@ -406,19 +409,20 @@ for (xvar in 1:length(xvars)){
   png(paste0("Figures/Scatterplots/", VarStat, "_by_predictor/", VarStat, "_", xvars[xvar], "_points.png"), res=200, width=4.5,height=10, units="in")
   
   par(mfrow=c(5,2))
-  par(mar=c(1.5,2,1.5,.5), oma=c(1.5,2,2,0))
+  par(mar=c(1.5,2,.5,.5), oma=c(1.5,2,1.5,0))
   par(mgp=c(2, .3, 0), tck=-0.02)
   
   var_nu<-1
   for (var_nu in 1:length(sd_columns)){
     y<-k_full[,sd_columns[var_nu]]
-    
-    plot(y ~ x, bg=viridis(4)[k_full$lakeconn], pch=21, cex=1.5, xlab='', ylab='')
-    mtext(shortnames[var_nu], 3,0)
+    ylim<-c(range(y, na.rm=T)[1],extendrange(y, f=0.14)[2]) 
+    plot(y ~ x, bg=viridis(4)[k_full$lakeconn], pch=21, cex=1.5, xlab='', ylab='', ylim=ylim)
+    # mtext(shortnames[var_nu], 3,0)
+    legend('top', inset=0, shortnames[var_nu], bty='n', xjust=0.5, x.intersp=0)
   }
   mtext(xvars[xvar], 1,0,outer=T)
   mtext(paste0('Within-lake ', VarStat), 2,0,outer=T)
-  mtext('Points', 3,-1,outer=T)
+  mtext('Points', 3,-.25,outer=T)
   
   dev.off()
     }
@@ -426,19 +430,21 @@ for (xvar in 1:length(xvars)){
   png(paste0("Figures/Scatterplots/", VarStat, "_by_predictor/", VarStat, "_", xvars[xvar], "_pixels.png"), res=200, width=4.5,height=10, units="in")
   
   par(mfrow=c(5,2))
-  par(mar=c(1.5,2,1.5,.5), oma=c(1.5,2,2,0))
+  par(mar=c(1.5,2,.5,.5), oma=c(1.5,2,1.5,0))
   par(mgp=c(2, .3, 0), tck=-0.02)
   
   var_nu<-1
   for (var_nu in 1:length(sd_columns_pix)){
     y<-k_full[,sd_columns_pix[var_nu]]
+    ylim<-c(range(y, na.rm=T)[1],extendrange(y, f=0.14)[2]) 
     
-    plot(y ~ x, bg=viridis(4)[k_full$lakeconn], pch=21, cex=1.5)
-    mtext(shortnames[var_nu], 3,0)
+    plot(y ~ x, bg=viridis(4)[k_full$lakeconn], pch=21, cex=1.5, ylim=ylim)
+    legend('top', inset=0, shortnames[var_nu], bty='n', xjust=0.5, x.intersp=0)
+    # mtext(shortnames[var_nu], 3,0)
   }
   mtext(xvars[xvar], 1,0,outer=T)
   mtext(paste0('Within-lake ', VarStat), 2,0,outer=T)
-  mtext('Pixels', 3,-1,outer=T)
+  mtext('Pixels', 3,-.25,outer=T)
   
   dev.off()
   }
