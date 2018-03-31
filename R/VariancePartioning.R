@@ -117,6 +117,23 @@ df_lmer$grp <-factor(df_lmer$grp, c( 'lakeconn_f', 'LakeDay', 'Residual'))
 df_lmer$Variable <-factor(df_lmer$Variable, Vars)
 df_lmer$VarShort <- factor(shortnames[match(df_lmer$Variable, Vars)], shortnames)
 
+var_table<- df_lmer %>%
+  group_by(VarShort) %>%
+  summarize(totalvar=sum(vcov))
+
+varsum <- df_lmer %>% 
+  group_by(grp, VarShort) %>% 
+  dplyr::select (vcov) %>%
+  spread(grp, value=vcov)
+ 
+var_table2<-left_join(varsum, var_table)
+
+var_table2$WithinLakePer <- var_table2$Residual/var_table2$totalvar*100
+var_table2$AmongLakePer <- var_table2$LakeDay/var_table2$totalvar*100
+var_table2$AmongLandscapePer <- var_table2$lakeconn_f/var_table2$totalvar*100
+
+print(var_table2[,c(1,5:8)])
+
 #Figure of percent variance within vs across lakes
 png("Figures/VariancePartion3Level.png", width=4.5,height=3, units="in", res=400)
 
@@ -128,8 +145,8 @@ varbar<-ggplot(df_lmer[c(1,4,7)], aes(x=VarShort, y=vcov, fill=grp)) +
   geom_bar(position = "fill",stat = "identity", colour='black', width=0.85, size=0.5) +
   labs(y='Variance explained (%)', x='Variable')  +
   scale_fill_manual("", values = c("grey75", "grey45",  "grey10"), labels=c("Among landscape positions", "Among lakes", "Within lakes")) + 
-  theme_bw() + 
-  theme(legend.position=c("bottom"), panel.border = element_rect(colour = "black", fill=NA, size=.5)) + 
+  theme_classic() + 
+  theme(legend.position=c("bottom"), axis.line.x = element_blank(), axis.ticks.x= element_blank()) + 
   scale_y_continuous(labels = seq(0,100,25), breaks=seq(0,1,.25), expand=c(0,0)) 
 
 print(varbar)
