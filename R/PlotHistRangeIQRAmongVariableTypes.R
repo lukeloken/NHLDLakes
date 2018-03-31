@@ -20,7 +20,7 @@ SemiVars <- c('TmpC_h', 'SPCScm_h', 'fDOMRFU_h', 'TrbFNU_h', 'pH_h', 'ODOmgL_h',
 SemiRange_columns<-paste(SemiVars, 'points', 'SemiRange', sep='_')
 
 # ##### End code to delete later
-IQRstats <- c('MaxMinusMin', 'Q95MinusQ05', 'IQR', 'sd', 'mad')
+IQRstats <- c('MaxMinusMin', 'Q95MinusQ05', 'IQR', 'sd', 'mad', 'logsd')
 
 
 # Make a vector of axis labels with units
@@ -49,10 +49,19 @@ for (nu in 1:length(IQRstats)){
   
   var <- 1
   for (var in 1:length(goodvars_pixels)){
+    if (nu == 6){
+      values<-log10(j[paste(goodvars_pixels[var], 'sd', sep="_")])
+    } else {
     values<-j[paste(goodvars_pixels[var], IQRstats[nu], sep="_")]
+    }
+    
     hist(values[,1], main='', xlab='', ylab='', col='lightgrey', breaks=10)
     
-    mtext(units[var], 1, 2.25)
+    if (nu == 6){
+      mtext(paste0('log sd of ', shortnames[var]), 1, 2.25)
+    } else {
+      mtext(units[var], 1, 2.25)
+    }
     box(which='plot')
     
   }
@@ -74,10 +83,18 @@ for (nu in 1:length(IQRstats)){
   
   var <- 1
   for (var in 1:length(goodvars_points)){
-    values<-j[paste(goodvars_points[var], IQRstats[nu], sep="_")]
+    if (nu == 6){
+      values<-log10(j[paste(goodvars_points[var], 'sd', sep="_")])
+    } else {
+      values<-j[paste(goodvars_points[var], IQRstats[nu], sep="_")]
+    }
     hist(values[,1], main='', xlab='', ylab='', col='lightgrey', breaks=10)
     
-    mtext(units[var], 1, 2.25)
+    if (nu == 6){
+      mtext(paste0('log sd of ', shortnames[var]), 1, 2.25)
+    } else {
+      mtext(units[var], 1, 2.25)
+    }
     box(which='plot')
     
   }
