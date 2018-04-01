@@ -54,7 +54,7 @@ PerVar<-(pca$sdev^2)/sum((pca$sdev^2))*100
 CumVar<-cumsum(PerVar)
 plot(CumVar, ylab='Cumulative variance (%)', type='o', ylim=c(0,100))
 
-png("Figures/PCA/PCASummary.png", res=200, width=9,height=5, units="in")
+png("Figures/PCA/PCASummary.png", res=400, width=9,height=5, units="in")
 par(mfrow=c(1,2))
 par(mar=c(2.5,3.5,.5,0), oma=c(.5,0,0,0))
 par(mgp=c(2, .5, 0))
