@@ -70,7 +70,7 @@ PercentVar<-unlist(lapply(model_list, extractvar))
 pervar_df<-data.frame(goodvars, PercentVar)
 
 #Figure of percent variance within vs across lakes
-png("Figures/VariancePartion.png", res=200, width=5,height=3, units="in", res=400)
+png("Figures/VariancePartion.png", width=5,height=3, units="in", res=400)
 
 par(mfrow=c(1,1))
 par(mar=c(2.5,3,1,1))
