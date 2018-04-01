@@ -20,7 +20,7 @@ SemiVars <- c('TmpC_h', 'SPCScm_h', 'fDOMRFU_h', 'TrbFNU_h', 'pH_h', 'ODOmgL_h',
 SemiRange_columns<-paste(SemiVars, 'points', 'SemiRange', sep='_')
 
 # ##### End code to delete later
-IQRstats <- c('MaxMinusMin', 'Q95MinusQ05', 'IQR', 'sd', 'mad', 'logsd')
+IQRstats <- c('MaxMinusMin', 'Q95MinusQ05', 'IQR', 'sd', 'mad', 'logsd', 'skewness')
 
 
 # Make a vector of axis labels with units
@@ -38,7 +38,7 @@ units[10]<-c(expression(paste('BGA (RFU)')))
 
 
 # Loop through stats and variables and make histograms (pixels)
-nu <- 1
+nu <- 6
 for (nu in 1:length(IQRstats)){
   
   png(paste0("Figures/Histograms/Hisotgramsof_", IQRstats[nu], "_Pixels.png"), res=200, width=4.5,height=10, units="in")
@@ -49,7 +49,7 @@ for (nu in 1:length(IQRstats)){
   
   var <- 1
   for (var in 1:length(goodvars_pixels)){
-    if (nu == 6){
+    if (IQRstats[nu] == 'logsd'){
       values<-log10(j[paste(goodvars_pixels[var], 'sd', sep="_")])
     } else {
     values<-j[paste(goodvars_pixels[var], IQRstats[nu], sep="_")]
@@ -57,8 +57,11 @@ for (nu in 1:length(IQRstats)){
     
     hist(values[,1], main='', xlab='', ylab='', col='lightgrey', breaks=10)
     
-    if (nu == 6){
+    if (IQRstats[nu] == 'logsd'){
       mtext(paste0('log sd of ', shortnames[var]), 1, 2.25)
+    } else if (IQRstats[nu] == 'skewness'){
+      mtext(paste0(shortnames[var], ' skewness'), 1, 2.25)
+      abline(v=c(-2,2), lty=3, col='red')
     } else {
       mtext(units[var], 1, 2.25)
     }
@@ -72,7 +75,7 @@ for (nu in 1:length(IQRstats)){
 }
 
 # Loop through stats and variables and make histograms (points)
-nu <- 1
+nu <- 6
 for (nu in 1:length(IQRstats)){
   
   png(paste0("Figures/Histograms/Hisotgramsof_", IQRstats[nu], "_Points.png"), res=200, width=4.5,height=10, units="in")
@@ -83,18 +86,22 @@ for (nu in 1:length(IQRstats)){
   
   var <- 1
   for (var in 1:length(goodvars_points)){
-    if (nu == 6){
+    if (IQRstats[nu] == 'logsd'){
       values<-log10(j[paste(goodvars_points[var], 'sd', sep="_")])
     } else {
       values<-j[paste(goodvars_points[var], IQRstats[nu], sep="_")]
     }
     hist(values[,1], main='', xlab='', ylab='', col='lightgrey', breaks=10)
     
-    if (nu == 6){
+    if (IQRstats[nu] == 'logsd'){
       mtext(paste0('log sd of ', shortnames[var]), 1, 2.25)
+    } else if (IQRstats[nu] == 'skewness'){
+      mtext(paste0(shortnames[var], ' skewness'), 1, 2.25)
+      abline(v=c(-2,2), lty=3, col='red')
     } else {
       mtext(units[var], 1, 2.25)
     }
+    
     box(which='plot')
     
   }
