@@ -15,3 +15,11 @@ glmplot<-function (glm, ...){
   plotlim<-range(c(y_obs, y_pred), na.rm=T)
   plot(y_obs, y_pred, xlim=plotlim, ylim=plotlim,...)
 }
+
+extractp<-function(lm) {
+  rSquared <- summary(lm)$r.squared
+  pVal <- anova(lm)$'Pr(>F)'[1]
+  v <- c(pVal, rSquared)
+  names(v) <- c('pVal', 'rSquared')
+  return(v)
+}
