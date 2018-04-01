@@ -22,6 +22,8 @@ library(viridis)
 library(randomForestSRC)
 library(ggRandomForests)
 library(grid)
+library(car)
+
 
 source('R/GLMcustom.R')
 
@@ -98,10 +100,52 @@ df_median <-k_full[flamepredvars]
 df_morph<-k_full[predvars]
 
 
-# subset to only include lakes will all available variables
-# Note that this table is not used for glm and random forest as these can handle missin values
-# k<-na.omit(k_full[c('Lake', predvars, flamepredvars, sd_columns_pix)])
+# Correlation matrix among spatial variacne stats
+df_sd_corr<-df_sd
+names(df_sd_corr)<-shortnames
 
+
+
+
+# Plot correlation matrix of all semivariance ranges
+png(paste0("Figures/Scatterplots/", VarStat, "_CorrMatrix.png"), res=200, width=12,height=12, units="in")
+par(mfrow=c(1,1))
+par(mar=c(1,1,.5,2.5))
+par(mgp=c(3,.5,0), tck=-0.02)
+
+# scatterplotMatrix((df_sd_corr), diagonal="histogram", smooth=FALSE, pch=16, col=c('darkgrey', 'black', 'black'))
+# 
+# col4 <- viridis(10)
+
+m<-cor(na.omit(df_sd_corr))
+# corrplot::corrplot.mixed(m, lower.col='black', upper.col=brewer.pal(10, 'RdYlBu'), cl.lim=c(0,1))
+corrplot::corrplot.mixed(m, upper='circle', lower.col='black', upper.col=c(rep('black', 10), rev(viridis(10))), cl.lim=c(0,1))
+
+
+mtext(paste0('Correlation matrix of within lake ', VarStat), 3, -2)
+
+# mtext(paste0('within lake ', VarStat),1,1.5)
+# mtext(paste0('within lake ', VarStat),2,1.5)
+
+dev.off()
+
+#log
+png(paste0("Figures/Scatterplots/", VarStat, "_log_CorrMatrix.png"), res=200, width=12,height=12, units="in")
+par(mfrow=c(1,1))
+par(mar=c(3,3,.5,.5))
+par(mgp=c(3,.5,0), tck=-0.02)
+
+scatterplotMatrix(log10(df_sd_corr), diagonal="histogram", smooth=FALSE, pch=16, col=c('darkgrey', 'black', 'black'))
+
+# m2<-cor(na.omit(log10(df_sd_corr)))
+# corrplot::corrplot.mixed(m2, upper='circle', lower.col='black', upper.col=c(rep('black', 10), rev(viridis(10))), cl.lim=c(0,1))
+
+mtext(paste0('Correlation matrix of within lake log ', VarStat), 3, -1)
+
+mtext(paste0('within lake log ', VarStat),1,1.5)
+mtext(paste0('within lake log ', VarStat),2,1.5)
+
+dev.off()
 
 
 ############ Simple linear model ###########
@@ -160,6 +204,64 @@ for (model in 1:length(modellist)){
   summary<-summary(modellist[[model]])
   print(summary)
 }
+
+#Basic model for lake conn and SDI
+
+basicmodellist<-list()
+sdimodel<-list()
+lakeconnmodel<-list()
+column<-1
+for (column in 1:length(sd_columns_pix)) {
+  y<-k[,sd_columns_pix[column]]
+  
+  xvars<-paste('m', c(4,9), sep='', collapse='+')
+  
+  equation <- paste0('y~', xvars)
+  
+  basicmodel<-lm(equation)
+  # vif(fullmodel)
+  summary(basicmodel)
+  anova(basicmodel)
+  
+  basicmodellist[[column]] <-basicmodel
+  
+  lakeconnmodel[[column]]<-lm(y~m9)
+  sdimodel[[column]]<-lm(y~m4)
+  
+}
+
+basicmodellist
+
+#print models
+model<-1
+for (model in 1:length(basicmodellist)){
+  print(sd_columns_pix[model])
+  summary<-summary(basicmodellist[[model]])
+  print(summary)
+  summary2<-summary(lakeconnmodel[[model]])
+  print(summary2)
+  summary3<-summary(sdimodel[[model]])
+  print(summary3)
+}
+
+Bothlist<-sapply(basicmodellist, function(l) extractp(l))
+lakeconnlist<-sapply(lakeconnmodel, function(l) extractp(l))
+sdilist<-sapply(sdimodel, function(l) extractp(l))
+
+boundlist<-as.data.frame(rbind(Bothlist, lakeconnlist, sdilist))
+names(boundlist)<-shortnames
+boundlist$stat<-row.names(boundlist)
+row.names(boundlist)<-NULL
+boundlist$model<-c('Both', 'Both', 'LakeConn', 'LakeConn', 'SDI', 'SDI')
+
+
+ptable<- boundlist %>%
+  filter(stat=='pVal')
+
+r2table<- boundlist %>%
+  filter(stat=='rSquared')
+
+print(ptable)
 
 
 ############ Best GLM and RandomForest###########
@@ -267,7 +369,6 @@ mtext(paste0('Predicted ', VarStat), 2, 0, outer=T)
 mtext(paste0('Observed ',VarStat), 1, 0, outer=T)
 mtext(paste0('Best GLM for predicting within lake ', VarStat), 3, 0, outer=T)
 
-
 dev.off()
 
 #### GLM Scatterplots of all spatial stats LOG VERSION ####
@@ -299,6 +400,15 @@ mtext(paste0('Best GLM for predicting log ', VarStat, ' of'), 3, 0, outer=T)
 
 dev.off()
 
+
+# GLM predictor vars ####
+
+lmlist<-lapply(glmlist, function (l) glm2lm(l))
+lmsum<-lapply(lmlist, function (l) summary(l)$coefficients)
+lmvars<-lapply(lmsum, function (l) row.names(l))
+lmp<-lapply(lmsum, function (l) l[-1,'Pr(>|t|)'])
+lsorted<-lapply(lmp, function (l) l[order(l)])
+lcoeff<-lapply(lmsum, function (l) l[-1,'Estimate'])
 
 #### Variable importance plots of all response variables ####
 png(paste0("Figures/RandomForest/", VarStat, "/GG_", VarStat, "_AllVars.png"), res=200, width=8,height=10, units="in")
@@ -388,6 +498,16 @@ for (var_nu in 1:length(sd_columns_pix)){
   
   boxplot(y ~ k_full$lakeconn, col=viridis(4), boxwex=0.5)
   legend('top', inset=0, shortnames[var_nu], bty='n', xjust=0.5, x.intersp=0)
+  
+  p<-ptable[ptable$model=='LakeConn',var_nu]
+  if (p<0.05){
+    r2<-r2table[r2table$model=='LakeConn',var_nu]
+    if (p<0.01) {phrase = 'p<0.01'
+    } else { phrase = paste0('p=',round(p,2)) }
+    legend ('topleft', c(phrase, paste0('r2=', round(r2, 2))), bty='n')
+  }
+
+  
 }
 mtext('Lake Connection', 1,0,outer=T)
 mtext(paste0('Within-lake ', VarStat), 2,0,outer=T)
@@ -419,6 +539,7 @@ for (xvar in 1:length(xvars)){
     plot(y ~ x, bg=viridis(4)[k_full$lakeconn], pch=21, cex=1.5, xlab='', ylab='', ylim=ylim)
     # mtext(shortnames[var_nu], 3,0)
     legend('top', inset=0, shortnames[var_nu], bty='n', xjust=0.5, x.intersp=0)
+    
   }
   mtext(xvars[xvar], 1,0,outer=T)
   mtext(paste0('Within-lake ', VarStat), 2,0,outer=T)
@@ -441,15 +562,28 @@ for (xvar in 1:length(xvars)){
     plot(y ~ x, bg=viridis(4)[k_full$lakeconn], pch=21, cex=1.5, ylim=ylim)
     legend('top', inset=0, shortnames[var_nu], bty='n', xjust=0.5, x.intersp=0)
     # mtext(shortnames[var_nu], 3,0)
+    
+    if (xvars[xvar]=='ShorelineIndex'){
+      p<-ptable[ptable$model=='SDI',var_nu]
+      if (p<0.05){
+        r2<-r2table[r2table$model=='SDI',var_nu]
+        if (p<0.01) {phrase = 'p<0.01'
+        } else { phrase = paste0('p=',round(p,2)) }
+        legend ('topleft', c(phrase, paste0('r2=', round(r2, 2))), bty='n')
+      }
+    }
+    
+    
+    
   }
   mtext(xvars[xvar], 1,0,outer=T)
   mtext(paste0('Within-lake ', VarStat), 2,0,outer=T)
   mtext('Pixels', 3,-.25,outer=T)
   
   dev.off()
-  }
-  
 }
+}
+
 
 
 
