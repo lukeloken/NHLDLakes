@@ -1,0 +1,133 @@
+---
+title: "Homework 8"
+author: "Luke Loken"
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+# Load options
+  knitr::opts_chunk$set(fig.path='Figs/',echo = TRUE)
+```
+
+## Homework 8
+
+```{r, include=FALSE}
+
+#Load data and libraries
+library(plyr)
+library(tidyr)
+library(dplyr)
+library(sp)
+library(rgdal, verbose=F)
+library(SDMTools)
+library(raster,verbose = F)
+library(RColorBrewer)
+library(rgeos)
+library(spdep)
+library(viridis)
+library(gstat)
+library(geoR)
+
+MEcsv <- read.csv("../../Zoo955/Data/MendotaBathy.csv", header=T)
+MEoutline <- readOGR('../../Zoo955/Data/Shapefiles/Mendota_shape.shp', layer='Mendota_shape',stringsAsFactors = F)
+MEbathy <- readOGR('../../Zoo955/Data/Shapefiles/Mendota_bathy.shp', layer='Mendota_bathy',stringsAsFactors = F)
+
+MEoutline2 <- gUnaryUnion(MEbathy)
+
+yld <- readOGR('../../Zoo955/Data/Shapefiles/yld_study_lakes.shp', 'yld_study_lakes', stringsAsFactors = F)
+
+coordinates(MEcsv)<-~lat+long
+proj4string(MEcsv)<-crs(yld)
+proj4string(MEoutline2)<-crs(yld)
+```
+
+```{r, fig1, fig.height=5, fig.width=7, fig.align='center', echo=F}
+
+par(mar=c(2,2,1,1))
+plot(MEbathy, border='darkgrey', col='lightblue')
+# plot(yld, add=T, lwd=3, border='purple')
+# plot(MEoutline, add=T, lwd=3, border='blue')
+plot(MEoutline2, add=T, lty=1, lwd=2, border='black')
+plot(MEcsv, add=T, col='red')
+legend('topleft', c('Depth observations', 'Original bathy contours'), pch=c(3,NA), lty=c(NA,1), col=c('red', 'darkgrey'), bty='n')
+```
+
+
+```{r, fig2, fig.width = 6, fig.align='center', fig.height=4.5, include=T }
+
+#Create spatial lines to calculate distance to shore
+MEline<-as(MEoutline2, "SpatialLines") 
+MEcsv$DistToShore<-gDistance(MEcsv, MEline, byid=T)[1,]
+
+# Make polygrid - This is each location to make predictions
+bbox<-MEoutline2@bbox
+pixelsize=100
+data1.grid<-polygrid(seq(bbox[1,1], bbox[1,2], pixelsize), 
+                     seq(bbox[2,1], bbox[2,2], pixelsize),
+                     borders=MEoutline2@polygons[[1]]@Polygons[[1]]@coords)
+
+# Set names of coordinates and match projection
+coordinates(data1.grid)<-~x+y
+proj4string(data1.grid) <- crs(MEoutline2)
+
+
+#Calculate distance to shore of all points in polygrid
+#These will be used for Kriging
+data1.grid$DistToShore<-gDistance(data1.grid, MEline, byid=T)[1,]
+
+# Convert to gridded (pixels) rather than points
+gridded(data1.grid) <- TRUE
+
+plot(data1.grid, main='Distance to shore (m)')
+
+```
+
+
+```{r, fig3, fig.width = 4, fig.align='center', fig.height=3.5, include=T }
+
+
+#Create variogram for interpolation
+gs <- gstat(formula=depth_m~1, locations=MEcsv)
+v <- variogram(gs, width=100 )
+v.fit<-fit.variogram(v, vgm(c('Lin', 'Sph', 'Exp', 'Gau', 'Nug')), fit.method=2)
+v.fit
+
+par(mar=c(2,2,1,1))
+plot(v, v.fit)
+
+#Krig to datagrid using Distance to shore and semivariance model
+krig1<- krige(depth_m~DistToShore, MEcsv, data1.grid, v.fit)
+krig_r<-raster(krig1, layer='var1.pred')
+krig_var<-raster(krig1, layer='var1.var')
+
+```
+
+```{r, fig4, fig.width = 6.5, fig.align='center', fig.height=8, echo=F}
+
+par(mar=c(1,2,1,1))
+par(mfrow=c(2,1))
+plot(MEoutline2,lwd=2)
+plot(krig_r, col=rev(viridis(100)), add=T, axes=F)
+plot(MEoutline2, add=T, lwd=2)
+plot(MEcsv, add=T, pch=3, col='red')
+mtext('Depth (m)', 4,0)
+mtext('Predicted depth using universal Kriging and distance to shore', 3,0)
+legend('topright', inset=0.1, c('Depth observation'), pch=3, col='red', bty='n')
+
+plot(MEoutline2,lwd=2)
+plot(krig_var, col=(viridis(100)), add=T, axes=F)
+plot(MEoutline2, add=T, lwd=2)
+plot(MEcsv, add=T, pch=3, col='red')
+mtext(expression(paste('Variance (m'^'2', ')')), 4,0)
+mtext('Variance', 3,0)
+legend('topright', inset=0.1, c('Depth observation'), pch=3, col='red', bty='n')
+mtext('High variance equates to low confidence in prediction', 1,0)
+
+```
+
+Who notied that Dr. Dugan changed the depths of the first 7 observations? 
+
+The middle of the lake has a shallow hump. 
