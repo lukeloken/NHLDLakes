@@ -1,5 +1,14 @@
 #Wrapper function to call multiple scripts for combining datatables
 
+# Things to do to convert sensor measurements into flame data
+# Need to do this first and if you update any datasource('R/RUN_FLAME_NHLDLoop.R')
+
+# source('R/RUN_FLAME_NHLDLoop.R')
+# source('R/InverseDistanceWeighting_FLAMeNHLDLakes_Loop.R')
+# source('R/SpatialStatsPoints_Loop.R')
+# source('R/BindSpatialPoints.R')
+
+
 
 ############# Combine multiple data types ####
 
@@ -43,5 +52,9 @@ source('R/PlotSemivarRangeScatterplots.R')
 
 #PCA analysis of predictor variables
 source('R/PCAanalysis.R')
+
+
+#Variance partitioning 
+source('R/VariancePartioning.R')
 
 
