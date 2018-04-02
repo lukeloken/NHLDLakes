@@ -3,8 +3,8 @@ title: "FLAMe case study"
 author: "Luke Loken"
 date: '`r format(Sys.Date(), "%B %d, %Y")`'
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
