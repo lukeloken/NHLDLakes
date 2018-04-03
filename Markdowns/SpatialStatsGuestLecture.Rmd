@@ -261,10 +261,10 @@ plot(v)
 * Now we need to fit a model
 * What kind of model should we use?
 
-```{r, fig11, fig.height=5, fig.width=7, fig.align='center', echo=T}
+```{r, fig11, fig.height=5, fig.width=7.5, fig.align='center', echo=T}
 
 #Look at a few types of semivariogram models
-show.vgms(sill=5, range=0.75, ylim=c(0,6), xlim=c(0,2.5), models=as.character(vgm()$short[c(1:10)]))
+show.vgms(sill=5, range=0.75, ylim=c(0,6), xlim=c(0,2.5))
 ```
 
 * Based on the variogram of the data, many choices are appropriate. 
