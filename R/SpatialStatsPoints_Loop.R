@@ -59,7 +59,7 @@ lakes_Base<-spTransform(lakes_Base_UTM, CRS(projection))
 polygonmatch<-c(rep(NA, length(filenames)))
 
 # Start loop for each filename
-lake_day=filenames[7]
+lake_day=filenames
 for (lake_day in filenames){
   day_number<-which(filenames==lake_day )
   setwd(paste(getwd(),'/Data/', lake_day, sep=""))
