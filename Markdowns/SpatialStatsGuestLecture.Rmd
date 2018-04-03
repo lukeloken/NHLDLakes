@@ -3,8 +3,8 @@ title: "FLAMe case study"
 author: "Luke Loken"
 date: '`r format(Sys.Date(), "%B %d, %Y")`'
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -34,8 +34,6 @@ library(prettymapr)
 library(SDMTools)
 library(RColorBrewer)
 library(viridis)
-
-
 library(FedData)
 
 #Load data
@@ -249,8 +247,8 @@ Looking at the maps, we see finer patches for fDOM and chlorophyll than temperat
 library(gstat)
 
 #Parameters for semivariogram calculation. Maximum distance (cutoff) and bin size (width)
-cutoff=3000
-width=50
+cutoff=2000
+width=100
 
 # CH4 data are the 50th column in spatial points data frame 'LSG2'
 
@@ -337,16 +335,16 @@ ExtractRangeSill <-function (SPdf, colname, models, plot, ...){
 head(LSG) #LSG is the spatialpointsdataframe
 models<-c("Nug", "Lin", "Sph") #Which models to try?
 
-table<-ExtractRangeSill(LSG2, colname='CH4uM_t', models=models, plot=T)
+table<-ExtractRangeSill(LSG, colname='CH4uM_t', models=models, plot=T)
 print(table)
 ```
 
 Now let's apply it to multiple columns (variables) in one dataset
 
 ```{r}
-columns<-c('TempC_t', 'fDOMQSU_t', 'CH4uM_t', 'CO2uM_t', 'ChlARFU_t')
+columns<-c('TempC_t', 'SPCScm_t', 'TrbFNU_t', 'ODOmgL_t', 'pH_tau', 'fDOMQSU_t', 'CH4uM_t', 'CO2uM_t', 'ChlARFU_t')
 
-SemiVarList<-lapply(columns, function (x) ExtractRangeSill(SPdf=LSG2, colname=x, models=models, plot=F))
+SemiVarList<-lapply(columns, function (x) ExtractRangeSill(SPdf=LSG, colname=x, models=models, plot=F))
 
 #Clean up output table
 SemiVarTable<-ldply(SemiVarList, data.frame)
@@ -370,7 +368,28 @@ Looking across lakes in northern Wisconsin, we see that variables differ in thei
 
 * The same data as above, but ranges divided by lake size. A range ratio of 1 means the semivariance occured at the lake scale. Smaller ratios means the scale of variation occured at finer spatial scales 
 
-* Most often temperature spatial patterns occur at the lake scale (ratio=1). 
+* In more than 50% of the lakes, the dominant scale of variation for temperature occurred at the lake scale (ratio=1). 
+
+
+# Drivers of within lake variation among lakes?
+
+
+![Landscape position](../Figures/Boxplots/sd_lakeconnection_pixels.png){width=50%}![Shoreline development index](../Figures/Scatterplots/sd_by_predictor/sd_ShorelineIndex_pixels.png){width=50%}
+
+* Best GLM models often select landscape position (or variables related to landscape position) and shoreline development index as lake scale predictors of within lake variability. 
+
+* Lakes lower in the landscape and lakes with more comlicated shorelines have greater within lake variation
+
+
+# Take home points
+
+* R is becoming more popular for spatial analysis, but it can be frustrating. 
+
+* Most modelling and interpolation methods require more inputs than may seem unnecessary. However, interpolation models probably should not be fit without considering the problem. I see in arcmap models you can click your way to success with defaults, but in reality you should consider all the assumptions with those choices. 
 
 
 
+
+
+
+El Fin
