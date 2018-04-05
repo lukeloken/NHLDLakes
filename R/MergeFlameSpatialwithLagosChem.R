@@ -7,8 +7,10 @@ names(MyChemLagos)[23]<-'Lake'
 MyChemLagos$DOC[which(is.na(MyChemLagos$DOC))]<-MyChemLagos$doc_median[which(is.na(MyChemLagos$DOC))]
 MyChemLagos$TotalPUF[which(is.na(MyChemLagos$TotalPUF))]<-MyChemLagos$tp_median[which(is.na(MyChemLagos$TotalPUF))]
 
-
+#Without Lake Order
 e<-MyChemLagos[,c(23, 14:22, 57, 62:63, 79, 75, 103, 105,191,192)]
+#With Lake Order
+# e<-MyChemLagos[,c(23, 14:22, 57, 62:63, 79, 75, 104, 106,192,193,76)]
 
 #Fill in missing or eroneous lagos data
 e$lakeconnection[e$Lake=='BallardLake']<-'DR_LakeStream'
