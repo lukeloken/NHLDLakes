@@ -89,6 +89,7 @@ mylocus$flame_name<-nhdIDs[match(mylocus$nhdid,nhdIDs$Permanent.Identifier),2]
 mylocus$lake_area_ha <- FullIds$AREA[match(mylocus$nhdid,FullIds$Permanent.Identifier)]/10000
 mylocus$lake_perim_meters <- FullIds$PERIMETER[match(mylocus$nhdid,FullIds$Permanent.Identifier)]
 mylocus$ShorelineIndex <- FullIds$SDI[match(mylocus$nhdid,FullIds$Permanent.Identifier)]
+mylocus$LakeOrder <-  FullIds$lake_order[match(mylocus$nhdid,FullIds$Permanent.Identifier)]
 
 # Add additional tables to mylagos datatable
 mylagos <- left_join(mylocus, lagos$lakes_limno)
