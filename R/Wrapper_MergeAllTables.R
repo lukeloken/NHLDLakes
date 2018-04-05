@@ -37,9 +37,13 @@ source('R/MergeFlameSpatialwithLagosChem.R')
 # j at 'Data/FlameStatsLagosChemAllWide.rds' = wide table of all variables, stats
 
 
-############# Plotting ####
+############# Plotting and analysis ####
 # Map Figure (This takes some time due to masking nlc raster)
 # source('PlotLandCoverNHLD.R')
+
+#Make table of mins,means,medians,max of geomorph, watershed, chem, and flame data
+#Outputs are table_out (file='Data/AcrossLakeSummary.rds' and '...ry.csv') 
+source('R/CalculateSpatialSummaries.R')
 
 #Plot boxplots of spatial heterogeneity among variable types
 source('R/CompareSpatialHeterogeneity_v2.R')
