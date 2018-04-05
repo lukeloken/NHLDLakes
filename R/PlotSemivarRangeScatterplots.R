@@ -27,9 +27,14 @@ goodvars_points<-paste(goodvars, 'points', sep='_')
 SemiVars <- c('TmpC_h', 'SPCScm_h', 'fDOMRFU_h', 'TrbFNU_h', 'pH_h', 'ODOmgL_h', 'CO2M_h', 'CH4M_h', 'ChlARFU_h', 'BGAPCRFU_h')
 
 SemiRange_columns<-paste(SemiVars, 'points', 'SemiRange', sep='_')
+SemiRangeRatio_columns<-paste(SemiVars, 'points', 'SemiRangeOverCutoff', sep='_')
 
 df_semi<-j[SemiRange_columns]
 names(df_semi)<-shortnames
+
+df_semi_ratio<-j[SemiRangeRatio_columns]
+names(df_semi_ratio)<-shortnames
+
 
 # Plot correlation matrix of all semivariance ranges
 png("Figures/Scatterplots/SemivarRangesAll.png", res=200, width=12,height=12, units="in")
@@ -45,6 +50,27 @@ scatterplotMatrix(df_semi, diagonal="histogram", smooth=FALSE, xlim=c(0,2500), y
 # chart.Correlation(df_semi, histogram=T, pch=16)
 mtext('Semivarance range (m)',1,1.5)
 mtext('Semivarance range (m)',2,1.5)
+
+dev.off()
+
+
+# Plot correlation matrix of all semivariance range ratios
+png("Figures/Scatterplots/SemivarRangesRatiosAll.png", res=200, width=12,height=12, units="in")
+par(mfrow=c(1,1))
+par(mar=c(3,3,.5,.5))
+par(mgp=c(3,.5,0), tck=-0.02)
+
+lim=c(0,1)
+
+# plot(df_semi, cex=0.8, pch=16)
+# scatterplotMatrix(df_semi_ratio, diagonal="histogram", smooth=FALSE, xlim=lim, ylim=lim, pch=16, col=c('darkgrey', 'black', 'black'))
+
+m<-cor(na.omit(df_semi_ratio))
+corrplot::corrplot.mixed(m, upper='circle', lower.col='black')
+
+# chart.Correlation(df_semi, histogram=T, pch=16)
+mtext('Semivarance range ratio',1,1.5)
+mtext('Semivarance range ratio',2,1.5)
 
 dev.off()
 
