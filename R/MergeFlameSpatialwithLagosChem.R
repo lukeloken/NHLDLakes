@@ -35,6 +35,8 @@ g <- f %>%
 
 h <- g[which(!is.na(g$value) & g$Date>='2015-06-08' & g$Lake !='MidgeLake' & g$Lake !='NewmanLake'),]
 
+h<- h[-which(h$Lake=='BigMuskellungeLake' & h$Date =='2015-08-03'),]
+
 i <- h %>% 
   unite(col, variable, GeoType, Statistic, sep='_') 
 
