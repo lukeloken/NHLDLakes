@@ -25,6 +25,18 @@ LakeIDs<-nhdIDs$Permanent.Identifier
 
 mylakes<-readOGR("Data/GISData", "regional_lakes_6", verbose=F)
 mylakes<-spTransform(mylakes,  CRS("+init=epsg:4326"))
+mylakes$WBIC<-as.numeric(as.character(mylakes$WBIC))
+mylakes$SHAIDNAME<-as.character(mylakes$SHAIDNAME)
+
+mylakes$WBIC[mylakes$SHAIDNAME=='Tomahawk Lake']<-1542700
+mylakes$WBIC[mylakes$SHAIDNAME=='Rainbow Lake']<-2310800
+
+
+#Get Lake Order from Latkza
+Latzka<-read.csv('Data/AL_WIlakecharacteristics.csv', header=T)
+
+mylakes$lake_order <- Latzka$landscapeposition[match(mylakes$WBIC, Latzka$WBIC)]
+
 
 lakeomits<-c('Camp Lake', 'Stone Lake', 'Fawn Lake', 'Turtle Flambeau Flowage', 'Big Lake', 'Averill Lake', 'Presque Isle Lake')
 mylakes<-mylakes[-which(mylakes$SHAIDNAME %in% lakeomits),]
