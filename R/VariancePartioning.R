@@ -2,6 +2,7 @@
 
 library(lubridate)
 library(ggplot2)
+library(plyr)
 library(dplyr)
 library(tidyr)
 library(lme4)
@@ -119,7 +120,7 @@ df_lmer$VarShort <- factor(shortnames[match(df_lmer$Variable, Vars)], shortnames
 
 var_table<- df_lmer %>%
   group_by(VarShort) %>%
-  summarize(totalvar=sum(vcov))
+  dplyr::summarize(totalvar=sum(vcov))
 
 varsum <- df_lmer %>% 
   group_by(grp, VarShort) %>% 
