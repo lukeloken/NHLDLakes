@@ -36,11 +36,11 @@ df_short2<-df_short
 # df_short2<- df_short[sample(nrow(df_short), min(nrow(df_short), 80000)), ]
 
 #Vectors of column names and shortnames
-goodvars<-c("TempC", "SPCuScm", "fDOMRFU", "TurbFNU", "pH", "ODOmgL",  "CO2uM", "CH4uM", "ChlARFU", "BGAPCRFU")
+goodvars<-c("TempC", "SPCuScm", "fDOMRFU", "pH", "TurbFNU", "ODOmgL",  "CO2uM", "CH4uM", "ChlARFU", "BGAPCRFU")
 
-shortnames<-c("Temp", "SPC", "fDOM", "Turb", "pH", "DO", "CO2", "CH4", "ChlA", "BGA")
+shortnames<-c("Temp", "SPC", "fDOM", "pH",  "Turb","DO", "CO2", "CH4", "ChlA", "BGA")
 
-Vars <- c('TmpC_hy', 'SPCScm_h', 'fDOMRFU_h', 'TrbFNU_h', 'pH_hyd', 'ODOmgL_h', 'CO2M_hy', 'CH4M_hy', 'ChlARFU_h', 'BGAPCRFU_h')
+Vars <- c('TmpC_hy', 'SPCScm_h', 'fDOMRFU_h', 'pH_hyd','TrbFNU_h',  'ODOmgL_h', 'CO2M_hy', 'CH4M_hy', 'ChlARFU_h', 'BGAPCRFU_h')
 
 
 
@@ -51,8 +51,8 @@ model_list<-list()
 model_list[[1]] <- lm(TmpC_hy ~ LakeDay, data = df)
 model_list[[2]] <- lm(SPCScm_h ~ LakeDay, data = df)
 model_list[[3]] <- lm(fDOMRFU_t ~ LakeDay, data = df)
-model_list[[4]] <- lm(TrbFNU_h ~ LakeDay, data = df)
-model_list[[5]] <- lm(pH_hyd ~ LakeDay, data = df)
+model_list[[4]] <- lm(pH_hyd ~ LakeDay, data = df)
+model_list[[5]] <- lm(TrbFNU_h ~ LakeDay, data = df)
 model_list[[6]] <- lm(ODOmgL_h ~ LakeDay, data = df)
 model_list[[7]] <- lm(XCO2Dppm_h ~ LakeDay, data = df)
 model_list[[8]] <- lm(XCH4Dppm_h ~ LakeDay, data = df)
