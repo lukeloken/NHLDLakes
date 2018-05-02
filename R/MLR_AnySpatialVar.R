@@ -32,18 +32,18 @@ j <- readRDS(file='Data/FlameStatsLagosChemAllWide.rds')
 
 #Color scheme to be used for all plotting
 colors<-c('#377eb8', '#e41a1c', '#4daf4a')
-colorbyvar<-colors[c(1,1,1,1,2,2,2,2,3,3)]
+colorbyvar<-colors[c(1,1,1,1,1,2,2,2,2,2)]
 
 #Spatial heterogeneiety stat to use
 # VarStat <-'mad'
 VarStat <-'sd'
 # VarStat <-'SemiRange'
 # VarStat <-'SemiRangeOverCutoff'
-
+# VarStat <-'skewness'
 
 #Vectors of names
-goodvars<-c("TempC", "SPCuScm", "fDOMRFU", "TurbFNU", "pH", "ODOmgL",  "CO2uM", "CH4uM", "ChlARFU", "BGAPCRFU")
-shortnames<-c("Temp", "SPC", "fDOM", "Turb", "pH", "DO", "CO2", "CH4", "ChlA", "BGA")
+goodvars<-c("TempC", "SPCuScm", "fDOMRFU", "pH", "TurbFNU", "ODOmgL",  "CO2uM", "CH4uM", "ChlARFU", "BGAPCRFU")
+shortnames<-c("Temp", "SPC", "fDOM", "pH", "Turb",  "DO", "CO2", "CH4", "ChlA", "BGA")
 
 mediannames<-paste0(goodvars, 'Median')
 goodvars_points<-paste(goodvars, 'points', sep='_')
@@ -55,7 +55,7 @@ sd_columns_pix<-paste(goodvars, 'pixels', VarStat, sep='_')
 med_columns_pix<-paste(goodvars, 'pixels', 'Median', sep='_')
 
 #Semivariance ranges use different var names
-SemiVars <- c('TmpC_h', 'SPCScm_h', 'fDOMRFU_h', 'TrbFNU_h', 'pH_h', 'ODOmgL_h', 'CO2M_h', 'CH4M_h', 'ChlARFU_h', 'BGAPCRFU_h')
+SemiVars <- c('TmpC_h', 'SPCScm_h', 'fDOMRFU_h', 'pH_h', 'TrbFNU_h',  'ODOmgL_h', 'CO2M_h', 'CH4M_h', 'ChlARFU_h', 'BGAPCRFU_h')
 
 SemiRange_columns<-paste(SemiVars, 'points', 'SemiRange', sep='_')
 SemiRangeOverCutoff_columns<-paste(SemiVars, 'points', 'SemiRangeOverCutoff', sep='_')
@@ -92,6 +92,11 @@ if (VarStat=='SemiRange'){
   df_sd <- k_full[SemiRangeOverCutoff_columns]
   sd_columns_pix<-SemiRangeOverCutoff_columns
   k<-na.omit(k_full[c('Lake', predvars, flamepredvars, SemiRangeOverCutoff_columns)])
+  
+} else if (VarStat=='skewness'){
+  k_full[sd_columns_pix]<-abs(k_full[sd_columns_pix])
+  df_sd<-k_full[sd_columns_pix]
+  k<-na.omit(k_full[c('Lake', predvars, flamepredvars, sd_columns_pix)])
 
 } else { df_sd<-k_full[sd_columns_pix]
 k<-na.omit(k_full[c('Lake', predvars, flamepredvars, sd_columns_pix)])}
@@ -119,7 +124,7 @@ par(mgp=c(3,.5,0), tck=-0.02)
 
 m<-cor(na.omit(df_sd_corr))
 # corrplot::corrplot.mixed(m, lower.col='black', upper.col=brewer.pal(10, 'RdYlBu'), cl.lim=c(0,1))
-corrplot::corrplot.mixed(m, upper='circle', lower.col='black', upper.col=c(rep('black', 10), rev(viridis(10))), cl.lim=c(0,1))
+corrplot::corrplot.mixed(m, upper='circle', lower.col='black', upper.col=c(rep('white', 8), rev(viridis(10))), cl.lim=c(-.1,1))
 
 
 mtext(paste0('Correlation matrix of within lake ', VarStat), 3, -2)
@@ -409,6 +414,16 @@ lmvars<-lapply(lmsum, function (l) row.names(l))
 lmp<-lapply(lmsum, function (l) l[-1,'Pr(>|t|)'])
 lsorted<-lapply(lmp, function (l) l[order(l)])
 lcoeff<-lapply(lmsum, function (l) l[-1,'Estimate'])
+
+# GLM predictor vars log ####
+
+loglmlist<-lapply(glmloglist, function (l) glm2lm(l))
+loglmsum<-lapply(loglmlist, function (l) summary(l)$coefficients)
+loglmvars<-lapply(loglmsum, function (l) row.names(l))
+loglmp<-lapply(loglmsum, function (l) l[-1,'Pr(>|t|)'])
+loglsorted<-lapply(loglmp, function (l) l[order(l)])
+loglcoeff<-lapply(loglmsum, function (l) l[-1,'Estimate'])
+
 
 #### Variable importance plots of all response variables ####
 png(paste0("Figures/RandomForest/", VarStat, "/GG_", VarStat, "_AllVars.png"), res=200, width=8,height=10, units="in")
