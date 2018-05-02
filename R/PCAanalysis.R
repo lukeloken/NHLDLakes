@@ -11,11 +11,14 @@ library(corrplot)
 
 j <- readRDS(file='Data/FlameStatsLagosChemAllWide.rds')
 
-colors<-c('#377eb8', '#e41a1c', '#4daf4a')
-colorbyvar<-colors[c(1,1,1,1,2,2,2,2,3,3)]
+AllMerged <- readRDS( file='Data/NHLDLakes_WaterChemFLAME.rds')
 
-goodvars<-c("TempC", "SPCuScm", "fDOMRFU", "TurbFNU", "pH", "ODOmgL",  "CO2uM", "CH4uM", "ChlARFU", "BGAPCRFU")
-shortnames<-c("Temp", "SPC", "fDOM", "Turb", "pH", "DO", "CO2", "CH4", "ChlA", "BGA")
+
+colors<-c('#377eb8', '#e41a1c', '#4daf4a')
+colorbyvar<-colors[c(1,1,1,1,1,2,2,2,2,2)]
+
+goodvars<-c("TempC", "SPCuScm", "fDOMRFU",  "pH", "TurbFNU","ODOmgL",  "CO2uM", "CH4uM", "ChlARFU", "BGAPCRFU")
+shortnames<-c("Temp", "SPC", "fDOM", "pH", "Turb", "DO", "CO2", "CH4", "ChlA", "BGA")
 
 goodvars_points<-paste(goodvars, 'points', sep='_')
 goodvars_pixels<-paste(goodvars, 'pixels', sep='_')
@@ -114,6 +117,22 @@ par(mar=c(1.5,3,.5,.5), oma=c(2.5,1,0,0))
 par(mgp=c(2, .5, 0))
 
 grid.arrange(p_1v2, p_3v2, ncol=2)
+
+dev.off()
+
+
+png("Figures/PCA/fdom_doc_spc_caPredictorVarsPCA_v3.png", res=200, width=6,height=3, units="in")
+par(mfrow=c(1,2))
+par(mar=c(1.5,3,.5,.5), oma=c(2.5,1,0,0))
+par(mgp=c(2, .5, 0), tck=-0.04)
+
+plot(AllMerged$fDOMRFU, AllMerged$DOC, xlab='', ylab='', las=1)
+mtext(expression(paste('DOC (mg C L'^'-1', ')', sep='')), 2, 2)
+mtext(expression(paste('fDOM (RFU)', sep='')), 1, 2)
+
+plot(AllMerged$SPCuScm, AllMerged$Ca, xlab='', ylab='', las=1)
+mtext(expression(paste('Calcium (mg Ca L'^'-1', ')', sep='')), 2, 2)
+mtext(expression(paste('SPC (', mu, 'S cm'^'-1', ')', sep='')), 1, 2)
 
 dev.off()
 
