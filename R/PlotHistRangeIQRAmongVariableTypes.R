@@ -10,12 +10,12 @@ j <- readRDS(file='Data/FlameStatsLagosChemAllWide.rds')
 
 # From previous script, can delete later
 #Subset or select which columns to use...
-goodvars<-c("TempC", "SPCuScm", "fDOMRFU", "TurbFNU", "pH", "ODOmgL",  "CO2uM", "CH4uM", "ChlARFU", "BGAPCRFU")
+goodvars<-c("TempC", "SPCuScm", "fDOMRFU", "pH", "TurbFNU", "ODOmgL",  "CO2uM", "CH4uM", "ChlARFU", "BGAPCRFU")
 
 goodvars_pixels<-paste(goodvars, 'pixels', sep='_')
 goodvars_points<-paste(goodvars, 'points', sep='_')
 
-SemiVars <- c('TmpC_h', 'SPCScm_h', 'fDOMRFU_h', 'TrbFNU_h', 'pH_h', 'ODOmgL_h', 'CO2M_h', 'CH4M_h', 'ChlARFU_h', 'BGAPCRFU_h')
+SemiVars <- c('TmpC_h', 'SPCScm_h', 'fDOMRFU_h', 'pH_h', 'TrbFNU_h', 'ODOmgL_h', 'CO2M_h', 'CH4M_h', 'ChlARFU_h', 'BGAPCRFU_h')
 
 SemiRange_columns<-paste(SemiVars, 'points', 'SemiRange', sep='_')
 
@@ -28,8 +28,8 @@ units<-c()
 units[1]<-c(expression(paste('Temp (', degree, 'C)')))
 units[2]<-c(expression(paste('SPC (', mu, 'S cm'^'-1', ')')))
 units[3]<-c(expression(paste('fDOM (RFU)')))
-units[4]<-c(expression(paste('Turb (FNU)')))
-units[5]<-c(expression(paste('pH')))
+units[4]<-c(expression(paste('pH')))
+units[5]<-c(expression(paste('Turb (FNU)')))
 units[6]<-c(expression(paste('DO (mg L'^'-1', ')')))
 units[7]<-c(expression(paste(CO[2], ' (', mu, 'M)')))
 units[8]<-c(expression(paste(CH[4], ' (', mu, 'M)')))
@@ -75,7 +75,7 @@ for (nu in 1:length(IQRstats)){
 }
 
 # Loop through stats and variables and make histograms (points)
-nu <- 6
+nu <- 1
 for (nu in 1:length(IQRstats)){
   
   png(paste0("Figures/Histograms/Hisotgramsof_", IQRstats[nu], "_Points.png"), res=200, width=4.5,height=10, units="in")
