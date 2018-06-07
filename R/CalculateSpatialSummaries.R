@@ -17,6 +17,10 @@ morphvars<-c("lake_area_ha", "lake_perim_meters", "ShorelineIndex", "maxdepth", 
 morphnames<-c('Lake area', 'Lake perimeter', 'Shoreline development index', 'Max depth', 'Watershed area', 'Watershed area to lake area', 'Total stream length', 'Total stream length to lake area', 'Lake connection')
 morphabbr<-c('LA', 'LP', 'SDI', 'Z', 'WA', 'WA:LA', 'SL', 'SL:LA', 'LC')
 
+morphvars<-c("lake_area_ha", "lake_perim_meters", "ShorelineIndex", "maxdepth", "iws_ha", 'iwsarea_to_lakearea', "iws_streamdensity_streams_sum_lengthm", 'streamlength_to_lakearea')
+morphnames<-c('Lake area', 'Lake perimeter', 'Shoreline development index', 'Max depth', 'Watershed area', 'Watershed area to lake area', 'Total stream length', 'Total stream length to lake area')
+morphabbr<-c('LA', 'LP', 'SDI', 'Z', 'WA', 'WA:LA', 'SL', 'SL:LA')
+
 chemvars<-c('TotalPUF', "TotalNUF", "SRP", "NO3NO2", "NH4", 'DOC', 'Cl')
 chemnames<-c('Total P', 'Total N', 'SRP', 'NO3-N', 'NH4-N', 'DOC', 'Chloride')
 chemabbr<-c('TP', 'TN', 'SRP', 'NO3', 'NH4', 'DOC', 'Cl')
@@ -45,20 +49,23 @@ medians<- table_subset %>%
 means<- table_subset %>%
   dplyr::summarize_at(c(morphvars, chemvars, flamevars), mean, na.rm=T)
 
-table_bound <- bind_rows(medians, means, mins, maxs)
+sds<- table_subset %>%
+  dplyr::summarize_at(c(morphvars, chemvars, flamevars), sd, na.rm=T)
+
+table_bound <- bind_rows(medians, means, mins, maxs, sds)
 table_bound$lake_perim_meters<-table_bound$lake_perim_meters/1000
 table_bound$iws_streamdensity_streams_sum_lengthm<-table_bound$iws_streamdensity_streams_sum_lengthm/1000
 names(table_bound)<-c(morphnames, chemnames, longnames)
 
 table_out<-as.data.frame(t(table_bound))
-names(table_out)<-c('Median', 'Mean', 'Min', 'Max')
+names(table_out)<-c('Median', 'Mean', 'Min', 'Max', 'SD')
 table_out$Variable<-row.names(table_out)
 table_out$Abbr<-c(morphabbr, chemabbr, shortnames)
 
 row.names(table_out)<-NULL
 
-table_out[,1:4]<-apply(table_out[,1:4], 2, round, digits=2)
-table_out<-table_out[,c(5:6,1:4)]
+table_out[,1:5]<-apply(table_out[,1:5], 2, round, digits=2)
+table_out<-table_out[,c(6:7,1:5)]
 
 
 write.table(table_out, file='Data/AcrossLakeSummary.csv', row.names=F, sep=',')
