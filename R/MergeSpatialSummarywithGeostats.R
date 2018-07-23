@@ -18,6 +18,7 @@ merged_points <- readRDS(file='Data/FlamePointsSummaries.rds')
 merged_points$GeoType<-rep('points', nrow(merged_points))
 
 a <- full_join(merged_summary, merged_points)
+lakedays<-unique(paste(a$Date, a$Lake, sep='_'))
 
 b <- a %>%
   dplyr::select(-LakeDay) %>% 
@@ -36,13 +37,13 @@ names(semivar_alllakes)[c(9,10)]<-c('SemiRange', 'SemiCutoff')
 semivar_alllakes$SemiRangeOverCutoff <- semivar_alllakes$SemiRange/semivar_alllakes$SemiCutoff
 
 c <- semivar_alllakes %>%
+  filter(variable != 'NA', lake_day %in% lakedays) %>% 
   dplyr::select(variable, Date, Lake, SemiRange, SemiCutoff, SemiRangeOverCutoff) %>%
-  filter(variable != 'NA') %>%
-  gather(key=Statistic, value=value, -c(Lake, Date, variable))
+  gather(key=Statistic, value=value, -c(Lake, Date,  variable))
 
 c$GeoType<-rep('points', nrow(c))
 
-d<-left_join(b,c)
+d<-full_join(b,c)
 
 saveRDS(d, file='Data/FlameStatsAll.rds')
 
