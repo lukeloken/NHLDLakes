@@ -42,7 +42,7 @@ c <- semivar_alllakes %>%
 
 c$GeoType<-rep('points', nrow(c))
 
-d<-full_join(b,c)
+d<-left_join(b,c)
 
 saveRDS(d, file='Data/FlameStatsAll.rds')
 
