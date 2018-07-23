@@ -28,7 +28,7 @@ e$iwsarea_to_lakearea <- e$iws_ha/e$lake_area_ha
 #Long Table (one row = one value), values are by lake, date, Geotype, variable, stat
 d<- readRDS(file='Data/FlameStatsAll.rds')
 
-f<-as.data.frame(full_join(e,d))
+f<-as.data.frame(right_join(e,d))
 
 g <- f %>%
   filter(variable!='NA' | Statistic != 'NA')
