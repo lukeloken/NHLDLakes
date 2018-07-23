@@ -28,6 +28,7 @@ filenames <- list.files(path = paste(getwd(), "/Data", sep=""))
 filenames <- filenames[-grep('2014', filenames)]
 filenames <- filenames[-which(filenames=="2015-08-12_RainbowLake")]
 
+
 # Set UTM projection (Wisconsin Transvere Mercator for Regional Lakes)
 projection <- "+init=epsg:3071"
 # projection = "+proj=utm +zone=15 ellps=WGS84"
