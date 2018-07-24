@@ -16,7 +16,7 @@ point_dir<-"E:/Dropbox/FLAME_NHLDlakes/pointsummaries"
 spatial_summaries<-list.files(data_dir)
 spatial_summaries<-spatial_summaries[-which(
   spatial_summaries %in% c("TenderfootCreek2016-09-05cleaned.csv",
-                           "PresqueIsleLake2015-07-29cleaned",
+                           "PresqueIsleLake2015-07-29cleaned.csv",
                            "AverillLake2015-07-29cleaned.csv",
                            "AllequashLake2015-05-27cleaned.csv",
                            "AllequashLake2015-06-24cleaned.csv",
@@ -45,7 +45,7 @@ spatial_summaries<-spatial_summaries[-which(
 point_summaries<-list.files(point_dir)
 point_summaries<-point_summaries[-which(
   point_summaries %in% c("TenderfootCreek2016-09-05cleaned.csv",
-                         "PresqueIsleLake2015-07-29cleaned",
+                         "PresqueIsleLake2015-07-29cleaned.csv",
                          "AverillLake2015-07-29cleaned.csv",
                          "AllequashLake2015-05-27cleaned.csv",
                          "AllequashLake2015-06-24cleaned.csv",
