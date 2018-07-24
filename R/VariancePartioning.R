@@ -9,6 +9,7 @@ library(lme4)
 
 setwd("E:/Git_Repo/NHLDLakes")
 
+
 #Load long dataframe of all lake observations
 df <-readRDS(file='Data/FlameAllLakesBoundPoints.rds')
 Lakes<-df$LakeDay
@@ -27,11 +28,29 @@ df$Lake<-gsub('_', '', str3)
 
 j <- readRDS(file='Data/FlameStatsLagosChemAllWide.rds')
 
+lakedays<-unique(paste(j$Date, j$Lake, sep='_'))
+
+df<-filter(df, LakeDay %in% lakedays)
+
 df$lakeconn_f<-factor(j$lakeconn[match(df$Lake,j$Lake)], c('Isolated', 'Headwater', 'DR_Stream', 'DR_LakeStream'))
 df$lakeconn_n <- match(df$lakeconn_f, levels(df$lakeconn_f))
 
 df_short <- df[which(!is.na(df$lakeconn_f)),]
 df_short2<-df_short
+
+
+
+df_summary<- df_short2 %>%
+  group_by(LakeDay) %>%
+  summarise_all(.funs=c(mean, sd), na.rm=T)
+
+head(as.data.frame(df_summary))
+
+df_summary2<-  group_by(df_short2, LakeDay) %>% 
+  summarise_all(funs(mean, sd), na.rm=T)
+
+head(as.data.frame(df_summary2))
+
 
 # df_short2<- df_short[sample(nrow(df_short), min(nrow(df_short), 80000)), ]
 
@@ -85,12 +104,33 @@ axis(2,at=seq(0,1,.2), labels=seq(0,100,20), las=1)
 mtext('Variance explained (%)',2,1.75)
 mtext('Variable',1,1.5)
 
-legend('bottomleft', inset=0.02, c('Within lakes', 'Across lakes'), fill=barcolors, x.intersp = 0.8)
+legend('bottomleft', inset=0.02, c('Within lakes', 'Among lake surveys'), fill=barcolors, x.intersp = 0.8)
 
 box(which='plot')
 
 dev.off()
 
+
+#Figure of percent variance within vs across lakes
+png("Figures/VariancePartion_V2.png", width=5,height=3, units="in", res=400)
+
+par(mfrow=c(1,1))
+par(mar=c(2.5,3,1,1))
+par(mgp=c(3,.5,0), tck=-0.02)
+barcolors<-c('grey20', 'grey80')
+
+barplot(rep(1,10), las=1, axes=F, names.arg=shortnames, col=barcolors[2], yaxs='i', ylim=c(0,1), cex.names=.7, mgp=c(3,.1,0))
+barplot((1-PercentVar), add=T, col=barcolors[1], axes=F)
+
+axis(2,at=seq(0,1,.25), labels=seq(0,100,25), las=1)
+mtext('Percent of variance (%)',2,1.75)
+mtext('Variable',1,1.5)
+
+legend('topleft', inset=0.02, c('Among lake surveys', 'Within lakes'), fill=barcolors[2:1], x.intersp = 0.8)
+
+box(which='plot')
+
+dev.off()
 
 
 # ###############################################
@@ -145,7 +185,7 @@ par(mgp=c(3,.5,0), tck=-0.02)
 varbar<-ggplot(df_lmer[c(1,4,7)], aes(x=VarShort, y=vcov, fill=grp)) + 
   geom_bar(position = "fill",stat = "identity", colour='black', width=0.85, size=0.5) +
   labs(y='Variance explained (%)', x='Variable')  +
-  scale_fill_manual("", values = c("grey75", "grey45",  "grey10"), labels=c("Among landscape positions", "Among lakes", "Within lakes")) + 
+  scale_fill_manual("", values = c("grey75", "grey45",  "grey10"), labels=c("Among landscape positions", "Among lake surveys", "Within lakes")) + 
   theme_classic() + 
   theme(legend.position=c("bottom"), axis.line.x = element_blank(), axis.ticks.x= element_blank()) + 
   scale_y_continuous(labels = seq(0,100,25), breaks=seq(0,1,.25), expand=c(0,0)) 
