@@ -16,34 +16,11 @@ point_dir<-"E:/Dropbox/FLAME_NHLDlakes/pointsummaries"
 spatial_summaries<-list.files(data_dir)
 spatial_summaries<-spatial_summaries[-which(
   spatial_summaries %in% c("TenderfootCreek2016-09-05cleaned.csv",
-                       "AllequashLake2015-05-27cleaned.csv",
-                       "AllequashLake2015-06-24cleaned.csv",
-                       "BigMuskellungeLake2015-06-02cleaned.csv",
-                       "BigMuskellungeLake2015-08-03cleaned.csv",
-                       "BigStGermainLake2015-06-10cleaned.csv",
-                       "BigStGermainLake2015-07-07cleaned.csv",
-                       "BlackOakLake2016-09-05cleaned.csv", 
-                       "DiamondLake2015-06-24cleaned.csv",
-                       "DiamondLake2015-08-05cleaned.csv",
-                       "DogLake2015-07-28cleaned.csv",
-                       "LakeEscanaba2015-06-30cleaned.csv",
-                       "LakeNebish2015-06-30cleaned.csv",
-                       "LittleArborVitaeLake2015-07-07cleaned.csv",
-                       "LittleArborVitaeLake2015-08-03cleaned.csv",
-                       "LittleArborVitaeLake2016-09-04cleaned.csv",
-                       "PalmerLake2016-09-05cleaned.csv",
-                       "RainbowLake2015-08-12cleaned.csv",
-                       "SparklingLake2015-05-26cleaned.csv",
-                       "SparklingLake2015-07-13cleaned.csv",
-                       "SparklingLake2015-08-24cleaned.csv",
-                       "SpiderLake2015-07-20cleaned.csv",
-                       "VandercookLake2015-07-13cleaned.csv"))]
-
-point_summaries<-list.files(point_dir)
-point_summaries<-point_summaries[-which(
-  point_summaries %in% c("TenderfootCreek2016-09-05cleaned.csv",
+                           "PresqueIsleLake2015-07-29cleaned",
+                           "AverillLake2015-07-29cleaned.csv",
                            "AllequashLake2015-05-27cleaned.csv",
                            "AllequashLake2015-06-24cleaned.csv",
+                           "BallardLakeTomorrow2015-06-24cleaned.csv",
                            "BigMuskellungeLake2015-06-02cleaned.csv",
                            "BigMuskellungeLake2015-08-03cleaned.csv",
                            "BigStGermainLake2015-06-10cleaned.csv",
@@ -64,6 +41,35 @@ point_summaries<-point_summaries[-which(
                            "SparklingLake2015-08-24cleaned.csv",
                            "SpiderLake2015-07-20cleaned.csv",
                            "VandercookLake2015-07-13cleaned.csv"))]
+
+point_summaries<-list.files(point_dir)
+point_summaries<-point_summaries[-which(
+  point_summaries %in% c("TenderfootCreek2016-09-05cleaned.csv",
+                         "PresqueIsleLake2015-07-29cleaned",
+                         "AverillLake2015-07-29cleaned.csv",
+                         "AllequashLake2015-05-27cleaned.csv",
+                         "AllequashLake2015-06-24cleaned.csv",
+                         "BallardLakeTomorrow2015-06-24cleaned.csv",
+                         "BigMuskellungeLake2015-06-02cleaned.csv",
+                         "BigMuskellungeLake2015-08-03cleaned.csv",
+                         "BigStGermainLake2015-06-10cleaned.csv",
+                         "BigStGermainLake2015-07-07cleaned.csv",
+                         "BlackOakLake2016-09-05cleaned.csv", 
+                         "DiamondLake2015-06-24cleaned.csv",
+                         "DiamondLake2015-08-05cleaned.csv",
+                         "DogLake2015-07-28cleaned.csv",
+                         "LakeEscanaba2015-06-30cleaned.csv",
+                         "LakeNebish2015-06-30cleaned.csv",
+                         "LittleArborVitaeLake2015-07-07cleaned.csv",
+                         "LittleArborVitaeLake2015-08-03cleaned.csv",
+                         "LittleArborVitaeLake2016-09-04cleaned.csv",
+                         "PalmerLake2016-09-05cleaned.csv",
+                         "RainbowLake2015-08-12cleaned.csv",
+                         "SparklingLake2015-05-26cleaned.csv",
+                         "SparklingLake2015-07-13cleaned.csv",
+                         "SparklingLake2015-08-24cleaned.csv",
+                         "SpiderLake2015-07-20cleaned.csv",
+                         "VandercookLake2015-07-13cleaned.csv"))]
 
 
 
