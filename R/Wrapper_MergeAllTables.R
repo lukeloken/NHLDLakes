@@ -7,8 +7,7 @@
 # source('R/InverseDistanceWeighting_FLAMeNHLDLakes_Loop.R')
 # source('R/SpatialStatsPoints_Loop.R')
 # source('R/BindSpatialPoints.R')
-
-
+# source('R/CalculateCorrelograms.R')
 
 ############# Combine multiple data types ####
 
@@ -57,6 +56,8 @@ source('R/PlotSemivarRangeScatterplots.R')
 #PCA analysis of predictor variables
 source('R/PCAanalysis.R')
 
+#Regression analysis for within lake sd
+source('R/MLR_AnySpatialVar.R')
 
 #Variance partitioning 
 source('R/VariancePartioning.R')
