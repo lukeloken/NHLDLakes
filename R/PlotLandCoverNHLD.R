@@ -13,7 +13,9 @@ small_nlcd<-get_nlcd(template=nhld, label='nhld')
 
 mylakes<-readOGR("Data/GISData", "regional_lakes_6", verbose=F)
 mylakes<-spTransform(mylakes,  crs(small_nlcd))
-mylakes<-mylakes[-which(mylakes$SHAIDNAME %in% c('Turtle Flambeau Flowage', 'Stone Lake', 'Fawn Lake', 'Camp Lake', 'Big Lake', 'Round Lake', 'Papoose Lake', 'Averill Lake', 'Presque Isle Lake', 'Newman Lake', 'Unnamed')),]
+
+mylakes<-mylakes[-which(mylakes$Lake_Name %in% c('Turtle Flambeau Flowage', 'Stone Lake', 'Fawn Lake', 'Camp Lake', 'Big Lake', 'Round Lake', 'Papoose Lake', 'Averill Lake', 'Presque Isle Lake', 'Newman Lake', 'Midge Lake', 'Tuesday Lake', 'Peter Lake', 'Paul Lake')),]
+
 
 nhld<-readOGR("Data/GISData", "nhld_boundary", verbose=F)
 nhld<-spTransform(nhld,  crs(small_nlcd))
