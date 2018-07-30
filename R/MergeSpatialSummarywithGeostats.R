@@ -32,13 +32,13 @@ head(semivar_alllakes)
 semivar_alllakes$range_best[semivar_alllakes$model_type=='Nug']<-NA
 semivar_alllakes[which(semivar_alllakes[,c('range_best')]==Inf), c('range_best')]<-semivar_alllakes[which(semivar_alllakes[,c('range_best')]==Inf), c('cutoff')]
 
-names(semivar_alllakes)[c(9,10)]<-c('SemiRange', 'SemiCutoff')
+names(semivar_alllakes)[c(4,9,10)]<-c('PSill', 'SemiRange', 'SemiCutoff')
 
 semivar_alllakes$SemiRangeOverCutoff <- semivar_alllakes$SemiRange/semivar_alllakes$SemiCutoff
 
 c <- semivar_alllakes %>%
   filter(variable != 'NA', lake_day %in% lakedays) %>% 
-  dplyr::select(variable, Date, Lake, SemiRange, SemiCutoff, SemiRangeOverCutoff) %>%
+  dplyr::select(variable, Date, Lake, PSill, SemiRange, SemiCutoff, SemiRangeOverCutoff, SillTotal, SillPercent) %>%
   gather(key=Statistic, value=value, -c(Lake, Date,  variable))
 
 c$GeoType<-rep('points', nrow(c))
