@@ -36,9 +36,9 @@ colorbyvar<-colors[c(1,1,1,1,1,2,2,2,2,2)]
 
 #Spatial heterogeneiety stat to use
 # VarStat <-'mad'
-VarStat <-'sd'
+# VarStat <-'sd'
 # VarStat <-'SemiRange'
-# VarStat <-'SemiRangeOverCutoff'
+VarStat <-'SemiRangeOverCutoff'
 # VarStat <-'skewness'
 
 #Vectors of names
@@ -215,13 +215,16 @@ for (model in 1:length(modellist)){
 basicmodellist<-list()
 sdimodel<-list()
 lakeconnmodel<-list()
+logsdimodel<-list()
+loglakeconnmodel<-list()
 column<-1
 for (column in 1:length(sd_columns_pix)) {
   y<-k[,sd_columns_pix[column]]
-  
+  y2<-log(y)
   xvars<-paste('m', c(4,9), sep='', collapse='+')
   
   equation <- paste0('y~', xvars)
+  equation2<- paste0('y2~', xvars)
   
   basicmodel<-lm(equation)
   # vif(fullmodel)
@@ -229,9 +232,13 @@ for (column in 1:length(sd_columns_pix)) {
   anova(basicmodel)
   
   basicmodellist[[column]] <-basicmodel
-  
+
   lakeconnmodel[[column]]<-lm(y~m9)
   sdimodel[[column]]<-lm(y~m4)
+  
+  loglakeconnmodel[[column]]<-lm(y2~m9)
+  logsdimodel[[column]]<-lm(y2~m4)
+  
   
 }
 
@@ -252,12 +259,15 @@ for (model in 1:length(basicmodellist)){
 Bothlist<-sapply(basicmodellist, function(l) extractp(l))
 lakeconnlist<-sapply(lakeconnmodel, function(l) extractp(l))
 sdilist<-sapply(sdimodel, function(l) extractp(l))
+loglakeconnlist<-sapply(loglakeconnmodel, function(l) extractp(l))
+logsdilist<-sapply(logsdimodel, function(l) extractp(l))
 
-boundlist<-as.data.frame(rbind(Bothlist, lakeconnlist, sdilist))
+
+boundlist<-as.data.frame(rbind(Bothlist, lakeconnlist, sdilist, loglakeconnlist, logsdilist))
 names(boundlist)<-shortnames
 boundlist$stat<-row.names(boundlist)
 row.names(boundlist)<-NULL
-boundlist$model<-c('Both', 'Both', 'LakeConn', 'LakeConn', 'SDI', 'SDI')
+boundlist$model<-c('Both', 'Both', 'LakeConn', 'LakeConn', 'SDI', 'SDI', 'logLakeConn', 'logLakeConn', 'logSDI', 'logSDI')
 
 
 ptable<- boundlist %>%
@@ -346,15 +356,23 @@ for (column in 1:ncol(df_sd)){
   
 }
 
-
+if (VarStat=='SemiRangeOverCutoff'){
 #### GLM Scatterplots of all spatial stats ####
-png(paste0("Figures/GLMModel/GLM_", VarStat, ".png"), res=200, width=4.5,height=10, units="in")
+png(paste0("Figures/GLMModel/GLM_", VarStat, ".png"), res=200, width=4.5,height=8, units="in")
+  par(mar=c(2,2,.5,.5), oma=c(1.5,1.5,1.5,0))
+  par(mgp=c(2, .5, 0))
+  par(mfrow=c(4,2))
+  seq<-c(1:6,9:10)
 
-par(mar=c(2,2,.5,.5), oma=c(1.5,1.5,1.5,0))
-par(mgp=c(2, .5, 0))
-par(mfrow=c(5,2))
-for (model in 1:length(glmlist)){
-  
+} else {
+  png(paste0("Figures/GLMModel/GLM_", VarStat, ".png"), res=200, width=4.5,height=10, units="in")
+  par(mar=c(2,2,.5,.5), oma=c(1.5,1.5,1.5,0))
+  par(mgp=c(2, .5, 0))
+  par(mfrow=c(5,2))
+  seq<-c(1:10)
+}
+  for (model in seq){
+
   glmplot(glmlist[[model]], pch=1, ylab='', xlab='')
   abline(0,1, lty=2)
   legend('top', inset=0.01, c(shortnames[model]), bty='n')
@@ -369,13 +387,23 @@ for (model in 1:length(glmlist)){
   }
   
   
-}
+  }
+
+if (VarStat=='SemiRangeOverCutoff'){
+  mtext(paste0('Predicted SemiRangeRatio'), 2, 0, outer=T)
+  mtext(paste0('Observed SemiRangeRatio'), 1, 0, outer=T)
+  mtext(paste0('Best GLM for predicting within lake semivariance range ratio'), 3, 0, outer=T)
+  
+} else{
 mtext(paste0('Predicted ', VarStat), 2, 0, outer=T)
 mtext(paste0('Observed ',VarStat), 1, 0, outer=T)
 mtext(paste0('Best GLM for predicting within lake ', VarStat), 3, 0, outer=T)
 
+}
+
 dev.off()
 
+r2_list_log<-list()
 #### GLM Scatterplots of all spatial stats LOG VERSION ####
 png(paste0("Figures/GLMModel/GLMlog_", VarStat, ".png"), res=200, width=4.5,height=10, units="in")
 
@@ -392,15 +420,16 @@ for (model in 1:length(glmloglist)){
   if (length(glmloglist[[model]]$BestModel[[1]])>1){
     lm<-glm2lm(glmloglist[[model]])
     r2<-round(summary(lm)$adj.r.squared,2)
+    r2_list_log[[model]]<-r2
     legend('bottomright', inset=0.01, c(paste0('r2=', (r2))), bty='n')
   } else {
     legend('bottomright', inset=0.01, c('Best model = NULL'), bty='n')
   }
   
 }
-mtext(paste0('Predicted ', VarStat), 2, 0, outer=T)
-mtext(paste0('Observed ',VarStat), 1, 0, outer=T)
-mtext(paste0('Best GLM for predicting log ', VarStat, ' of'), 3, 0, outer=T)
+mtext(paste0('log of ', ' predicted ', VarStat, sep=''), 2, 0, outer=T)
+mtext(paste0('log of observed ',VarStat), 1, 0, outer=T)
+# mtext(paste0('Best GLM for predicting log ', VarStat, ' of'), 3, 0, outer=T)
 
 
 dev.off()
@@ -531,6 +560,37 @@ mtext('Pixels', 3,-.25,outer=T)
 dev.off()
 
 
+
+png(paste0("Figures/Boxplots/", VarStat, "_lakeconnection_log_pixels.png"), res=200, width=4.5,height=10, units="in")
+
+par(mfrow=c(5,2))
+par(mar=c(1.5,2,.5,.5), oma=c(1.5,2,1.5,0))
+par(mgp=c(2, .3, 0), tck=-0.02)
+
+var_nu<-1
+for (var_nu in 1:length(sd_columns_pix)){
+  y<-k_full[,sd_columns_pix[var_nu]]
+  
+  boxplot(log10(y) ~ k_full$lakeconn, col=viridis(4), boxwex=0.5)
+  legend('top', inset=0, shortnames[var_nu], bty='n', xjust=0.5, x.intersp=0)
+  
+  p<-ptable[ptable$model=='logLakeConn',var_nu]
+  if (p<0.05){
+    r2<-r2table[r2table$model=='logLakeConn',var_nu]
+    if (p<0.01) {phrase = 'p<0.01'
+    } else { phrase = paste0('p=',round(p,2)) }
+    legend ('topleft', c(phrase, paste0('r2=', round(r2, 2))), bty='n')
+  }
+  
+  
+}
+mtext('Lake Connection', 1,0,outer=T)
+mtext(paste0('log (within-lake ', VarStat, ')'), 2,0,outer=T)
+# mtext('Pixels', 3,-.25,outer=T)
+
+dev.off()
+
+
 # Scatterplots of predictor vars vs all response vars. ####
 # Loop through all predictor vars and plot scatterplot of within lake sd
 xvars<-c(predvars,flamepredvars)
@@ -599,6 +659,39 @@ for (xvar in 1:length(xvars)){
 }
 }
 
+
+png(paste0("Figures/Scatterplots/", VarStat, "_by_predictor/", VarStat, "_SDI_log_pixels.png"), res=200, width=4.5,height=10, units="in")
+
+par(mfrow=c(5,2))
+par(mar=c(1.5,2,.5,.5), oma=c(1.5,2,1.5,0))
+par(mgp=c(2, .3, 0), tck=-0.02)
+
+x<-k_full$ShorelineIndex
+
+var_nu<-1
+for (var_nu in 1:length(sd_columns_pix)){
+  y<-log10(k_full[,sd_columns_pix[var_nu]])
+  ylim<-c(range(y, na.rm=T)[1],extendrange(y, f=0.14)[2]) 
+  
+  plot(y ~ x, bg=viridis(4)[k_full$lakeconn], pch=21, cex=1.5, ylim=ylim)
+  legend('top', inset=0, shortnames[var_nu], bty='n', xjust=0.5, x.intersp=0)
+  # mtext(shortnames[var_nu], 3,0)
+  
+
+    p<-ptable[ptable$model=='logSDI',var_nu]
+    if (p<0.05){
+      r2<-r2table[r2table$model=='logSDI',var_nu]
+      if (p<0.01) {phrase = 'p<0.01'
+      } else { phrase = paste0('p=',round(p,2)) }
+      legend ('topleft', c(phrase, paste0('r2=', round(r2, 2))), bty='n')
+    }
+}
+
+mtext('Shoreline index', 1,0,outer=T)
+mtext(paste0('log (within-lake ', VarStat, ')'), 2,0,outer=T)
+# mtext('Pixels', 3,-.25,outer=T)
+
+dev.off()
 
 
 
