@@ -140,15 +140,15 @@ for (lake_day in filenames){
         # ########################
         print(variable_names[var_number])
         fit_ncf <- ncf::correlog(x = data3@coords[,1], y = data3@coords[,2], z = data3@data[,column], increment = window, resamp=resamp, na.rm=T)
-        
+
         # outputs of correlogram
         ncf_class     <- fit_ncf $mean.of.class
         ncf_corr      <- fit_ncf $correlation
         ncf_p         <- fit_ncf $p
-        
+
         moran_ncf[[var_number]] <- data.frame(ncf_class, ncf_corr, ncf_p)
         names(moran_ncf)[[var_number]]<-variable_names[var_number]
-        
+
         # ##########################
         # Calculate semivariogram
         # variogram, fit.variogram
@@ -191,16 +191,16 @@ for (lake_day in filenames){
         # ###################################
         # Plot correlogram and semivariogram
         # ###################################
+        colors<-c('darkseagreen4', 'cornflowerblue')
         
-        #Correlogram
+        # #Correlogram
         png(paste0(getwd(), "/correlograms/", var,".png"), res=200, width=5,height=4, units="in")
         par(mar=c(2.5,2.5,0.5,0.5))
         par(mgp=c(2,.2,0))
-        colors<-c('darkseagreen4', 'cornflowerblue')
-        
+
         plot(ncf_class, ncf_corr, type="o", ylim = c(-1, 1), xlim=c(0, cutoff), ylab="", xlab="", axes=FALSE, col=colors[1])
         points(ncf_class[which(ncf_p<p_threshold)], ncf_corr[which(ncf_p<p_threshold)], type="p", pch=16, col=colors[1])
-        
+
         abline(h=0, lty=3)
         axis(1, tck = .02)
         axis(2, tck = .02, las=1)
@@ -208,7 +208,7 @@ for (lake_day in filenames){
         mtext("Moran I", 2, 1.5)
         legend('top', inset=0.01, variable_names[var_number], bty='n')
         box(which='plot')
-        
+
         dev.off()
         
         #Semivariogram
@@ -231,7 +231,7 @@ for (lake_day in filenames){
   #output data
   moran_ncf_alllakes[[day_number]]<-moran_ncf
   names(moran_ncf_alllakes)[[day_number]]<-lake_day
-  
+
   if(nrow(semivar_alllakes)==0){semivar_alllakes<-semivar
   } else {semivar_alllakes<-smartbind(semivar_alllakes, semivar)}
 
@@ -245,13 +245,20 @@ semivar_alllakes$Date <- ymd(substr(semivar_alllakes$lake_day, start=1, stop=10)
 semivar_alllakes$Lake <- gsub(".*_","",semivar_alllakes$lake_day)
 semivar_alllakes$Lake <- gsub("[0-9]","",semivar_alllakes$Lake )
 
+semivar_alllakes$SillPercent <- (semivar_alllakes$model_psill)/(semivar_alllakes$model_psill+semivar_alllakes$model_nug)
+semivar_alllakes$SillPercent[which(semivar_alllakes$model_type=='Nug')]<-0
+
+semivar_alllakes$SillTotal<-rowSums(data.frame(semivar_alllakes$model_psill,semivar_alllakes$model_nug), na.rm=T)
+semivar_alllakes$SillTotal[which(semivar_alllakes$model_type=='Nug')]<-0
+
+
 setwd("E:/Dropbox/FLAME_NHLDLakes/")
 #Export Data
-saveRDS(moran_ncf_alllakes, file='SpatialOutputs/moran_ncf_alllakes.rds')
+# saveRDS(moran_ncf_alllakes, file='SpatialOutputs/moran_ncf_alllakes.rds')
 saveRDS(semivar_alllakes, file='SpatialOutputs/semivar_alllakes.rds')
 
 #Export Data to git
 setwd("E:/Git_Repo/NHLDLakes")
-saveRDS(moran_ncf_alllakes, file='Data/moran_ncf_alllakes.rds')
+# saveRDS(moran_ncf_alllakes, file='Data/moran_ncf_alllakes.rds')
 saveRDS(semivar_alllakes, file='Data/semivar_alllakes.rds')
 
