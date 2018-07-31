@@ -129,5 +129,13 @@ saveRDS(mylagos2, file='Data/MyLakesLagos.rds')
 
 MyChemLagos <- full_join(ChemData, mylagos2)
 
+MyChemLagos$Latitude[which(is.na(MyChemLagos$Latitude))]<-MyChemLagos$nhd_lat[which(is.na(MyChemLagos$Latitude))]
+
+MyChemLagos$Longitude[which(is.na(MyChemLagos$Longitude))]<-MyChemLagos$nhd_long[which(is.na(MyChemLagos$Longitude))]
+
+
 saveRDS(MyChemLagos, file='Data/MyLakesLagosFlameChem.rds')
+
+
+
 
