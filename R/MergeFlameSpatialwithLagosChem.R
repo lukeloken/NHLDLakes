@@ -8,7 +8,7 @@ MyChemLagos$DOC[which(is.na(MyChemLagos$DOC))]<-MyChemLagos$doc_median[which(is.
 MyChemLagos$TotalPUF[which(is.na(MyChemLagos$TotalPUF))]<-MyChemLagos$tp_median[which(is.na(MyChemLagos$TotalPUF))]
 
 #Without Lake Order
-e<-MyChemLagos[,c(23, 14:22, 57, 62:63, 79, 75, 103, 105,191,192)]
+e<-MyChemLagos[,c(2:3,23, 14:22, 57, 62:63, 79, 75, 103, 105,191,192)]
 #With Lake Order
 # e<-MyChemLagos[,c(23, 14:22, 57, 62:63, 79, 75, 104, 106,192,193,76)]
 
@@ -44,3 +44,39 @@ j <- i %>%
   tidyr::spread(key=col, value=value)
 
 saveRDS(j, file='Data/FlameStatsLagosChemAllWide.rds')
+
+
+
+
+
+
+#Make table for supplementary material
+S1vars<-c('Lake', 'Latitude', 'Longitude', 'lake_area_ha', 'lake_perim_meters', 'ShorelineIndex', 'maxdepth', 'iws_ha', 'iws_streamdensity_streams_sum_lengthm', "lakeconnection")
+
+
+
+goodlakes<-unique(j$Lake)
+
+TableS1<-as.data.frame(e[S1vars])
+
+TableS1$'lakeconnection'<-as.character(TableS1$'lakeconnection')
+TableS1$'lakeconnection'[which(TableS1$'lakeconnection'=='DR_LakeStream')]<-'DrainageLake'
+TableS1$'lakeconnection'[which(TableS1$'lakeconnection'=='DR_Stream')]<-'Drainage'
+
+
+names(TableS1)<-c('Lake', 'Latitude', 'Longitude', 'Lake area', 'Perimeter', 'Shoreline development index', 'Max depth', 'Watershed area', 'Total stream length', 'Lake connection')
+
+TableS1[,2:3]<-round(TableS1[,2:3], 4)
+TableS1[,c(4:5,8:9)]<-round(TableS1[,c(4:5,8:9)], 0)
+TableS1[,6]<-round(TableS1[,6], 2)
+TableS1[,7]<-round(TableS1[,7], 1)
+
+
+# TableS1$Latitude[match(c('RainbowLake', 'TenderfootLake', 'LakeTomahawk'), TableS1$Lake)]<-
+
+TableS1_out<-TableS1[which(TableS1$Lake %in% goodlakes),]
+TableS1_out<-TableS1_out[order(TableS1_out$Lake),]
+
+
+
+write.table(TableS1_out, file='Data/NHLDLakesMorph.csv', row.names=F, sep=',')
