@@ -81,6 +81,12 @@ saveRDS(table_out, file='Data/AcrossLakeSummary.rds')
 
 
 
+
+
+
+
+#Compare SD within vs SD among lakes
+
 sd_table<-data.frame(var1=as.numeric(sds[flamevars]), var2=as.numeric(table_subset_sd))
 sd_table$percentamong<-sd_table$var1/(sd_table$var1+sd_table$var2)
 sd_table$percentwithin<-sd_table$var2/(sd_table$var1+sd_table$var2)
