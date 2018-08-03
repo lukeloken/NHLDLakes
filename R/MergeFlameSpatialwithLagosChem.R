@@ -70,9 +70,10 @@ TableS1[,6]<-round(TableS1[,6], 2)
 TableS1[,7]<-round(TableS1[,7], 1)
 
 
-# TableS1$Latitude[match(c('RainbowLake', 'TenderfootLake', 'LakeTomahawk'), TableS1$Lake)]<-
-
 TableS1_out<-TableS1[which(TableS1$Lake %in% goodlakes),]
+
+TableS1_out$Lake<-sub('Lake', '', TableS1_out$Lake)
+
 TableS1_out<-TableS1_out[order(TableS1_out$Lake),]
 
 
