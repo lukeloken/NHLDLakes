@@ -36,9 +36,9 @@ colorbyvar<-colors[c(1,1,1,1,1,2,2,2,2,2)]
 
 #Spatial heterogeneiety stat to use
 # VarStat <-'mad'
-# VarStat <-'sd'
+VarStat <-'sd'
 # VarStat <-'SemiRange'
-VarStat <-'SemiRangeOverCutoff'
+# VarStat <-'SemiRangeOverCutoff'
 # VarStat <-'skewness'
 
 #Vectors of names
@@ -523,7 +523,7 @@ if (VarStat %in% c('SemiRange', 'SemiRangeOverCutoff')==FALSE){
     boxplot(y ~ k_full$lakeconn, col=viridis(4), boxwex=0.5)
     legend('top', inset=0, shortnames[var_nu], bty='n', xjust=0.5, x.intersp=0)
   }
-  mtext('Lake Connection', 1,0,outer=T)
+  mtext('Lake connection', 1,0,outer=T)
   mtext(paste0('Within-lake ', VarStat), 2,0,outer=T)
   mtext('Points', 3,-.25,outer=T)
   
@@ -553,7 +553,7 @@ for (var_nu in 1:length(sd_columns_pix)){
 
   
 }
-mtext('Lake Connection', 1,0,outer=T)
+mtext('Lake connection', 1,0,outer=T)
 mtext(paste0('Within-lake ', VarStat), 2,0,outer=T)
 mtext('Pixels', 3,-.25,outer=T)
 
@@ -584,7 +584,7 @@ for (var_nu in 1:length(sd_columns_pix)){
   
   
 }
-mtext('Lake Connection', 1,0,outer=T)
+mtext('Lake connection', 1,0,outer=T)
 mtext(paste0('log (within-lake ', VarStat, ')'), 2,0,outer=T)
 # mtext('Pixels', 3,-.25,outer=T)
 
@@ -687,7 +687,7 @@ for (var_nu in 1:length(sd_columns_pix)){
     }
 }
 
-mtext('Shoreline index', 1,0,outer=T)
+mtext('Shoreline development index', 1,0,outer=T)
 mtext(paste0('log (within-lake ', VarStat, ')'), 2,0,outer=T)
 # mtext('Pixels', 3,-.25,outer=T)
 
