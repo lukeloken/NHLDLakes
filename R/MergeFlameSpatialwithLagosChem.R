@@ -43,8 +43,6 @@ i <- h %>%
 j <- i %>%
   tidyr::spread(key=col, value=value)
 
-saveRDS(j, file='Data/FlameStatsLagosChemAllWide.rds')
-
 
 
 
@@ -80,3 +78,10 @@ TableS1_out<-TableS1_out[order(TableS1_out$Lake),]
 
 
 write.table(TableS1_out, file='Data/NHLDLakesMorph.csv', row.names=F, sep=',')
+
+#Drop Lat//Long to keep variables in same order for future analysis
+j<-j[,-which(names(j) %in% c('Latitude', 'Longitude'))]
+
+saveRDS(j, file='Data/FlameStatsLagosChemAllWide.rds')
+
+
