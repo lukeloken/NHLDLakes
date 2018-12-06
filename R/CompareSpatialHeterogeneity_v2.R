@@ -20,6 +20,7 @@ j <- readRDS(file='Data/FlameStatsLagosChemAllWide.rds')
 
 #Subset or select which columns to use...
 goodvars<-c("TempC", "SPCuScm", "fDOMRFU", "pH","TurbFNU",  "ODOmgL",  "CO2uM", "CH4uM", "ChlARFU", "BGAPCRFU")
+# goodvars<-c("TempC", "SPCuScm", "fDOMRFU", "pH","TurbFNU",  "ODOmgL",  "CO2uM", "CH4uM", "ChlARFU", "BGAPCRFU", "ChlAugL", "BGAPCgL")
 shortnames<-c("Temp", "SPC", "fDOM", "pH", "Turb", "DO", "CO2", "CH4", "ChlA", "BGA")
 
 goodvars_pixels<-paste(goodvars, 'pixels', sep='_')
