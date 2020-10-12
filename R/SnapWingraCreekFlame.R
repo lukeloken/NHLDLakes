@@ -40,9 +40,11 @@ flame_data_UTM<-spTransform(flame_data, CRS(projection))
 # plot(flame_data_UTM, col='red', pch=5, add=T, cex=0.5)
 
 
-
+# convert to linear network. 
+# Use 1 m as the resolution!
 WingraNetwork<-line2network("C:/Dropbox/ArcGIS", "WingraCreekFlowLine", reproject=projection)
 WingraNetwork_clean<-cleanup(WingraNetwork)
+
 
 plot(WingraNetwork_clean)
 str(WingraNetwork_clean)
@@ -105,6 +107,7 @@ est_nugget<-v$gamma[1]
 
 #fit model to variogram
 v.fit <- fit.variogram(v, vgm(est_sill=est_sill, c("Nug", "Lin", "Sph", "Gau", "Exp"), est_range=est_range, nugget=est_nugget), fit.method = 1)
+# v.fit <- fit.variogram(v, vgm(est_sill=est_sill, c("Sph"), est_range=est_range, nugget=est_nugget), fit.method = 1)
 v.fit_Sph <- fit.variogram(v, vgm(est_sill=est_sill, c("Sph"), est_range=est_range, nugget=est_nugget), fit.method = 1)
 
 
